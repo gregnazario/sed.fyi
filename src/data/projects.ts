@@ -8,7 +8,7 @@ export const projects: Project[] = [
       'An interactive playground for the Move programming language. Write, compile, and test Move smart contracts directly in your browser with real-time feedback and syntax highlighting.',
     url: 'https://move-playground.sed.fyi',
     techStack: ['TypeScript', 'React', 'Move', 'WebAssembly'],
-    screenshot: 'https://via.placeholder.com/600x400',
+    screenshot: '/screenshots/move-playground.png',
   },
   {
     id: 'pastebin',
@@ -17,6 +17,6 @@ export const projects: Project[] = [
       'A simple, fast, and secure pastebin service for sharing code snippets and text. Features syntax highlighting for multiple languages, expiration controls, and privacy options.',
     url: 'https://pastebin.sed.fyi',
     techStack: ['TypeScript', 'Node.js', 'Redis', 'PostgreSQL'],
-    screenshot: 'https://via.placeholder.com/600x400',
+    screenshot: '/screenshots/pastebin.png',
   },
 ]

@@ -1,6 +1,8 @@
-src/index.css
-dist/
-node_modules/
+dist
+node_modules
 bun.lockb
-.claude/
+.claude
+src/**/*.css
+src/*.css
 *.css
+index.css
