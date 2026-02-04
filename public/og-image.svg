@@ -1,0 +1,35 @@
+
+<svg width="1200" height="630" viewBox="0 0 1200 630" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#1F2937;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#111827;stop-opacity:1" />
+    </linearGradient>
+  </defs>
+  
+  <!-- Background -->
+  <rect width="1200" height="630" fill="url(#bg)"/>
+  
+  <!-- Main content -->
+  <text x="600" y="200" font-family="system-ui, -apple-system, sans-serif" font-size="80" font-weight="bold" text-anchor="middle" fill="#FFFFFF">sed.fyi</text>
+  <text x="600" y="280" font-family="system-ui, -apple-system, sans-serif" font-size="32" text-anchor="middle" fill="#9CA3AF">Development Tools Portfolio</text>
+  
+  <!-- Project cards representation -->
+  <rect x="200" y="350" width="250" height="150" rx="12" fill="#374151" stroke="#4B5563" stroke-width="1"/>
+  <rect x="210" y="360" width="230" height="80" rx="4" fill="#1F2937"/>
+  <text x="325" y="415" font-family="system-ui, -apple-system, sans-serif" font-size="18" font-weight="600" text-anchor="middle" fill="#10B981">Move Playground</text>
+  <text x="325" y="465" font-family="system-ui, -apple-system, sans-serif" font-size="12" text-anchor="middle" fill="#9CA3AF">Interactive Move Development</text>
+  
+  <rect x="475" y="350" width="250" height="150" rx="12" fill="#374151" stroke="#4B5563" stroke-width="1"/>
+  <rect x="485" y="360" width="230" height="80" rx="4" fill="#1F2937"/>
+  <text x="600" y="415" font-family="system-ui, -apple-system, sans-serif" font-size="18" font-weight="600" text-anchor="middle" fill="#3B82F6">Secure Pastebin</text>
+  <text x="600" y="465" font-family="system-ui, -apple-system, sans-serif" font-size="12" text-anchor="middle" fill="#9CA3AF">Post-Quantum Encryption</text>
+  
+  <rect x="750" y="350" width="250" height="150" rx="12" fill="#374151" stroke="#4B5563" stroke-width="1"/>
+  <rect x="760" y="360" width="230" height="80" rx="4" fill="#1F2937"/>
+  <text x="875" y="415" font-family="system-ui, -apple-system, sans-serif" font-size="18" font-weight="600" text-anchor="middle" fill="#8B5CF6">More Tools</text>
+  <text x="875" y="465" font-family="system-ui, -apple-system, sans-serif" font-size="12" text-anchor="middle" fill="#9CA3AF">Coming Soon...</text>
+  
+  <!-- Bottom accent -->
+  <rect x="0" y="620" width="1200" height="10" fill="#10B981"/>
+</svg>

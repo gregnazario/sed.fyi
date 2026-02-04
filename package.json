@@ -19,6 +19,7 @@
     "autoprefixer": "^10.4.17",
     "postcss": "^8.4.35",
     "puppeteer": "^24.36.1",
+    "sharp": "^0.34.5",
     "tailwindcss": "^3.4.1",
     "typescript": "^5.3.3",
     "vite": "^6.3.3"

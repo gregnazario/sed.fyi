@@ -7,19 +7,19 @@ interface ProjectCardProps {
 
 const ProjectCard: React.FC<ProjectCardProps> = ({ project }) => {
   return (
-    <div className="bg-white rounded-lg shadow-md hover:shadow-xl transition-shadow duration-300 overflow-hidden group">
-      <div className="aspect-video bg-gray-100 overflow-hidden">
+    <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md hover:shadow-xl transition-shadow duration-300 overflow-hidden group">
+      <div className="aspect-video bg-gray-100 dark:bg-gray-700 overflow-hidden">
         {project.screenshot ? (
           <img
             src={project.screenshot}
             alt={`${project.title} screenshot`}
             className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
             onError={(e) => {
-              e.currentTarget.src = `https://via.placeholder.com/600x400?text=${encodeURIComponent(project.title)}`
+              e.currentTarget.src = `https://via.placeholder.com/600x400/374151/9CA3AF?text=${encodeURIComponent(project.title)}`
             }}
           />
         ) : (
-          <div className="w-full h-full flex items-center justify-center text-gray-400">
+          <div className="w-full h-full flex items-center justify-center text-gray-400 dark:text-gray-500">
             <svg
               className="w-16 h-16"
               fill="none"
@@ -38,14 +38,16 @@ const ProjectCard: React.FC<ProjectCardProps> = ({ project }) => {
         )}
       </div>
       <div className="p-6">
-        <h3 className="text-xl font-semibold text-gray-900 mb-2">{project.title}</h3>
-        <p className="text-gray-600 mb-4 line-clamp-3">{project.description}</p>
+        <h3 className="text-xl font-semibold text-gray-900 dark:text-white mb-2">
+          {project.title}
+        </h3>
+        <p className="text-gray-600 dark:text-gray-300 mb-4 line-clamp-3">{project.description}</p>
 
         <div className="flex flex-wrap gap-2 mb-4">
           {project.techStack.map((tech) => (
             <span
               key={tech}
-              className="px-2 py-1 text-xs font-medium bg-gray-100 text-gray-700 rounded"
+              className="px-2 py-1 text-xs font-medium bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded"
             >
               {tech}
             </span>
@@ -57,7 +59,7 @@ const ProjectCard: React.FC<ProjectCardProps> = ({ project }) => {
             href={project.url}
             target="_blank"
             rel="noopener noreferrer"
-            className="text-blue-600 hover:text-blue-800 font-medium text-sm flex items-center gap-1"
+            className="text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300 font-medium text-sm flex items-center gap-1"
           >
             Visit Project
             <svg
@@ -81,7 +83,7 @@ const ProjectCard: React.FC<ProjectCardProps> = ({ project }) => {
               href={project.githubUrl}
               target="_blank"
               rel="noopener noreferrer"
-              className="text-gray-600 hover:text-gray-900 transition-colors"
+              className="text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200 transition-colors"
               aria-label={`View ${project.title} on GitHub`}
             >
               <span className="sr-only">GitHub</span>
