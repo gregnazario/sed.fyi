@@ -1,0 +1,6 @@
+src/index.css
+dist/
+node_modules/
+bun.lockb
+.claude/
+*.css
