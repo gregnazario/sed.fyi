@@ -12,11 +12,11 @@ export const projects: Project[] = [
   },
   {
     id: 'pastebin',
-    title: 'Pastebin',
+    title: 'Secure Pastebin',
     description:
-      'A simple, fast, and secure pastebin service for sharing code snippets and text. Features syntax highlighting for multiple languages, expiration controls, and privacy options.',
+      'Share files securely with post-quantum encryption. Features ML-KEM (Kyber) + AES-256-GCM hybrid encryption, Argon2id password protection, and decentralized storage on Shelby Protocol.',
     url: 'https://pastebin.sed.fyi',
-    techStack: ['TypeScript', 'Node.js', 'Redis', 'PostgreSQL'],
+    techStack: ['TypeScript', 'Post-Quantum Crypto', 'Shelby Protocol', 'React'],
     screenshot: '/screenshots/pastebin.png',
   },
 ]
