@@ -1,8 +1,7 @@
-import type React from 'react'
 import { useView } from '../context/ViewContext'
 import type { ViewMode } from '../types/view'
 
-const ViewToggle: React.FC = () => {
+const ViewToggle = () => {
   const { mode, setMode } = useView()
 
   const handleModeChange = (newMode: ViewMode) => {
@@ -10,19 +9,17 @@ const ViewToggle: React.FC = () => {
   }
 
   return (
-    <div className="flex items-center space-x-2 bg-gray-100 dark:bg-gray-800 rounded-lg p-1">
+    <div className="flex items-center gap-1 bg-white/[0.05] border border-white/[0.06] rounded-lg p-1">
       <button
         type="button"
         onClick={() => handleModeChange('cards')}
-        className={`flex items-center px-3 py-2 rounded-md text-sm font-medium transition-colors ${
-          mode === 'cards'
-            ? 'bg-white dark:bg-gray-700 text-gray-900 dark:text-white shadow-sm'
-            : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200'
+        className={`flex items-center gap-1.5 px-3 py-1.5 rounded-md text-sm font-medium transition-all ${
+          mode === 'cards' ? 'bg-white/10 text-white' : 'text-zinc-500 hover:text-zinc-300'
         }`}
         aria-label="Card view"
       >
         <svg
-          className="w-4 h-4 mr-1"
+          className="w-4 h-4"
           fill="none"
           stroke="currentColor"
           viewBox="0 0 24 24"
@@ -31,7 +28,7 @@ const ViewToggle: React.FC = () => {
           <path
             strokeLinecap="round"
             strokeLinejoin="round"
-            strokeWidth={2}
+            strokeWidth={1.5}
             d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z"
           />
         </svg>
@@ -41,15 +38,13 @@ const ViewToggle: React.FC = () => {
       <button
         type="button"
         onClick={() => handleModeChange('list')}
-        className={`flex items-center px-3 py-2 rounded-md text-sm font-medium transition-colors ${
-          mode === 'list'
-            ? 'bg-white dark:bg-gray-700 text-gray-900 dark:text-white shadow-sm'
-            : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200'
+        className={`flex items-center gap-1.5 px-3 py-1.5 rounded-md text-sm font-medium transition-all ${
+          mode === 'list' ? 'bg-white/10 text-white' : 'text-zinc-500 hover:text-zinc-300'
         }`}
         aria-label="List view"
       >
         <svg
-          className="w-4 h-4 mr-1"
+          className="w-4 h-4"
           fill="none"
           stroke="currentColor"
           viewBox="0 0 24 24"
@@ -58,7 +53,7 @@ const ViewToggle: React.FC = () => {
           <path
             strokeLinecap="round"
             strokeLinejoin="round"
-            strokeWidth={2}
+            strokeWidth={1.5}
             d="M4 6h16M4 10h16M4 14h16M4 18h16"
           />
         </svg>

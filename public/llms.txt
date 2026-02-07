@@ -1,0 +1,16 @@
+# sed.fyi
+
+> Open-source development tools built for the modern web.
+
+sed.fyi is a collection of developer tools and utilities created by Greg Nazario.
+
+## Projects
+
+- [Move Playground](https://move-playground.sed.fyi): An interactive playground for the Move programming language. Write, compile, and test Move smart contracts directly in your browser with real-time feedback and syntax highlighting. Built with TypeScript, React, Move, and WebAssembly.
+- [Secure Pastebin](https://pastebin.sed.fyi): Share files securely with post-quantum encryption. Features ML-KEM (Kyber) + AES-256-GCM hybrid encryption, Argon2id password protection, and decentralized storage on Shelby Protocol. Built with TypeScript, React, and Post-Quantum Cryptography.
+
+## Links
+
+- Website: https://sed.fyi
+- GitHub: https://github.com/gregnazario
+- Portfolio: https://gnazar.io
