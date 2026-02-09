@@ -43,4 +43,14 @@ export const projects: Project[] = [
     techStack: ['TypeScript', 'Post-Quantum Crypto', 'Shelby Protocol', 'React'],
     screenshot: '/screenshots/pastebin.png',
   },
+  {
+    id: 'tubes',
+    title: 'Tubes',
+    description:
+      'Decentralized website hosting powered by Aptos and Shelby Protocol. Deploy and serve static sites directly from the blockchain with no centralized infrastructure.',
+    url: 'https://tubes.lol',
+    category: 'service',
+    techStack: ['Aptos', 'Shelby Protocol'],
+    status: 'active',
+  },
 ]
