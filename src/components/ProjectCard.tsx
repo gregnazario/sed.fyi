@@ -13,7 +13,7 @@ const ProjectCard = ({ project }: ProjectCardProps) => {
 
   return (
     <article
-      className="group relative bg-white/[0.03] border border-white/[0.06] rounded-xl overflow-hidden hover:border-violet-500/30 hover:bg-white/[0.05] transition-all duration-300"
+      className="group relative bg-white/[0.03] border border-white/[0.06] rounded-xl overflow-hidden hover:border-brand-500/30 hover:bg-white/[0.05] transition-all duration-300"
       aria-label={project.title}
     >
       {/* Screenshot */}
@@ -28,7 +28,7 @@ const ProjectCard = ({ project }: ProjectCardProps) => {
             onError={() => setImgError(true)}
           />
         ) : (
-          <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-violet-500/10 to-fuchsia-500/10">
+          <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-brand-500/10 to-amber-500/10">
             <span className="text-3xl font-bold text-zinc-700" aria-hidden="true">
               {project.title[0]}
             </span>
@@ -39,7 +39,7 @@ const ProjectCard = ({ project }: ProjectCardProps) => {
       {/* Content */}
       <div className="p-5">
         <div className="flex items-start justify-between gap-3 mb-3">
-          <h3 className="text-lg font-semibold text-white group-hover:text-violet-300 transition-colors leading-snug">
+          <h3 className="text-lg font-semibold text-white group-hover:text-brand-300 transition-colors leading-snug">
             {project.title}
           </h3>
           <span
@@ -71,7 +71,7 @@ const ProjectCard = ({ project }: ProjectCardProps) => {
             href={project.url}
             target="_blank"
             rel="noopener noreferrer"
-            className="inline-flex items-center gap-1.5 px-4 py-2 text-sm font-medium bg-violet-500/15 text-violet-300 border border-violet-500/25 rounded-lg hover:bg-violet-500/25 hover:border-violet-500/40 transition-all"
+            className="inline-flex items-center gap-1.5 px-4 py-2 text-sm font-medium bg-brand-500/15 text-brand-300 border border-brand-500/25 rounded-lg hover:bg-brand-500/25 hover:border-brand-500/40 transition-all"
           >
             Visit
             <svg

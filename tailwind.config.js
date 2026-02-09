@@ -4,6 +4,21 @@ export default {
   darkMode: 'class',
   theme: {
     extend: {
+      colors: {
+        brand: {
+          50: '#fef3ee',
+          100: '#fde4d4',
+          200: '#fac5a6',
+          300: '#f6a070',
+          400: '#f17339',
+          500: '#ee5b1e',
+          600: '#df4311',
+          700: '#b93210',
+          800: '#932a15',
+          900: '#772614',
+          950: '#401008',
+        },
+      },
       fontFamily: {
         sans: [
           'Inter',

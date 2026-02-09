@@ -1,6 +1,7 @@
 import { useMemo, useState } from 'react'
 import ProjectCard from './components/ProjectCard'
 import ProjectList from './components/ProjectList'
+import RedPandaMascot from './components/RedPandaMascot'
 import ViewToggle from './components/ViewToggle'
 import { useView, ViewProvider } from './context/ViewContext'
 import { projects } from './data/projects'
@@ -34,19 +35,29 @@ function AppContent() {
       <header className="relative overflow-hidden border-b border-white/[0.06]">
         {/* Gradient orbs */}
         <div className="absolute inset-0 overflow-hidden pointer-events-none" aria-hidden="true">
-          <div className="absolute -top-1/2 left-1/4 w-96 h-96 bg-violet-500/[0.08] rounded-full blur-3xl" />
-          <div className="absolute -top-1/2 right-1/4 w-96 h-96 bg-fuchsia-500/[0.06] rounded-full blur-3xl" />
+          <div className="absolute -top-1/2 left-1/4 w-96 h-96 bg-brand-500/[0.08] rounded-full blur-3xl" />
+          <div className="absolute -top-1/2 right-1/4 w-96 h-96 bg-amber-500/[0.06] rounded-full blur-3xl" />
         </div>
 
         <div className="relative max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 pt-20 pb-16">
-          <h1 className="text-5xl sm:text-6xl lg:text-7xl font-bold tracking-tight animate-fade-in">
-            <span className="bg-gradient-to-r from-white via-white to-zinc-500 bg-clip-text text-transparent">
-              sed.fyi
-            </span>
-          </h1>
-          <p className="mt-4 text-lg sm:text-xl text-zinc-400 max-w-2xl animate-slide-up">
-            Open-source development tools built for the modern web.
-          </p>
+          <div className="flex items-center gap-6 sm:gap-8">
+            {/* Mascot */}
+            <div className="shrink-0 animate-fade-in">
+              <RedPandaMascot size={100} variant="full" className="hidden sm:block" />
+              <RedPandaMascot size={64} variant="head" className="sm:hidden" />
+            </div>
+
+            <div>
+              <h1 className="text-5xl sm:text-6xl lg:text-7xl font-bold tracking-tight animate-fade-in">
+                <span className="bg-gradient-to-r from-white via-white to-zinc-500 bg-clip-text text-transparent">
+                  sed.fyi
+                </span>
+              </h1>
+              <p className="mt-4 text-lg sm:text-xl text-zinc-400 max-w-2xl animate-slide-up">
+                Open-source development tools built for the modern web.
+              </p>
+            </div>
+          </div>
         </div>
       </header>
 
@@ -67,7 +78,7 @@ function AppContent() {
                   aria-pressed={activeCategory === cat}
                   className={`px-3 py-1.5 text-sm font-medium rounded-full transition-all ${
                     activeCategory === cat
-                      ? 'bg-violet-500/20 text-violet-300 border border-violet-500/30'
+                      ? 'bg-brand-500/20 text-brand-300 border border-brand-500/30'
                       : 'text-zinc-500 hover:text-zinc-300 border border-transparent'
                   }`}
                 >
@@ -117,7 +128,10 @@ function AppContent() {
       <footer className="border-t border-white/[0.06] mt-auto">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
           <div className="flex flex-col sm:flex-row justify-between items-center gap-4">
-            <p className="text-zinc-600 text-sm">&copy; {new Date().getFullYear()} sed.fyi</p>
+            <div className="flex items-center gap-2">
+              <RedPandaMascot size={24} variant="head" />
+              <p className="text-zinc-600 text-sm">&copy; {new Date().getFullYear()} sed.fyi</p>
+            </div>
             <nav aria-label="Footer links" className="flex items-center gap-6">
               <a
                 href="https://github.com/gregnazario"

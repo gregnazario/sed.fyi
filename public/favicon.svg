@@ -1,4 +1,33 @@
 <svg width="32" height="32" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
   <rect width="32" height="32" rx="6" fill="#09090b"/>
-  <text x="50%" y="50%" dominant-baseline="central" text-anchor="middle" fill="#a78bfa" font-family="Inter, system-ui, -apple-system, sans-serif" font-size="20" font-weight="700">S</text>
+
+  <!-- Head -->
+  <circle cx="16" cy="18" r="11" fill="#ee5b1e"/>
+
+  <!-- Inner face cream -->
+  <ellipse cx="16" cy="20" rx="8.5" ry="8" fill="#fde4d4"/>
+
+  <!-- Ears -->
+  <circle cx="8" cy="10" r="4.5" fill="#ee5b1e"/>
+  <circle cx="24" cy="10" r="4.5" fill="#ee5b1e"/>
+  <!-- Inner ear -->
+  <circle cx="8" cy="10" r="2.5" fill="#401008"/>
+  <circle cx="24" cy="10" r="2.5" fill="#401008"/>
+
+  <!-- Eye patches -->
+  <ellipse cx="12" cy="17.5" rx="3.2" ry="3.5" fill="#b93210"/>
+  <ellipse cx="20" cy="17.5" rx="3.2" ry="3.5" fill="#b93210"/>
+
+  <!-- Eyes -->
+  <circle cx="12" cy="17.5" r="1.8" fill="#401008"/>
+  <circle cx="20" cy="17.5" r="1.8" fill="#401008"/>
+  <!-- Eye shine -->
+  <circle cx="12.7" cy="16.8" r="0.7" fill="white"/>
+  <circle cx="20.7" cy="16.8" r="0.7" fill="white"/>
+
+  <!-- Nose -->
+  <ellipse cx="16" cy="21.5" rx="1.5" ry="1" fill="#401008"/>
+
+  <!-- Mouth -->
+  <path d="M14.5 23 Q16 24.5 17.5 23" stroke="#401008" stroke-width="0.6" fill="none" stroke-linecap="round"/>
 </svg>

@@ -13,7 +13,7 @@ const ProjectList = ({ project }: ProjectListProps) => {
 
   return (
     <article
-      className="group bg-white/[0.03] border border-white/[0.06] rounded-xl p-5 hover:border-violet-500/30 hover:bg-white/[0.05] transition-all duration-300"
+      className="group bg-white/[0.03] border border-white/[0.06] rounded-xl p-5 hover:border-brand-500/30 hover:bg-white/[0.05] transition-all duration-300"
       aria-label={project.title}
     >
       <div className="flex items-start gap-5">
@@ -35,7 +35,7 @@ const ProjectList = ({ project }: ProjectListProps) => {
         <div className="flex-grow min-w-0">
           <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3 mb-2">
             <div className="flex items-center gap-3 min-w-0">
-              <h3 className="text-lg font-semibold text-white group-hover:text-violet-300 transition-colors truncate">
+              <h3 className="text-lg font-semibold text-white group-hover:text-brand-300 transition-colors truncate">
                 {project.title}
               </h3>
               <span
@@ -51,7 +51,7 @@ const ProjectList = ({ project }: ProjectListProps) => {
                 href={project.url}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="inline-flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium bg-violet-500/15 text-violet-300 border border-violet-500/25 rounded-lg hover:bg-violet-500/25 hover:border-violet-500/40 transition-all"
+                className="inline-flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium bg-brand-500/15 text-brand-300 border border-brand-500/25 rounded-lg hover:bg-brand-500/25 hover:border-brand-500/40 transition-all"
               >
                 Visit
                 <svg
