@@ -51,6 +51,7 @@ export const projects: Project[] = [
     url: 'https://tubes.lol',
     category: 'service',
     techStack: ['Aptos', 'Shelby Protocol'],
+    screenshot: '/screenshots/tubes.png',
     status: 'active',
   },
 ]
