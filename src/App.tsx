@@ -1,7 +1,6 @@
 import { useMemo, useState } from 'react'
 import ProjectCard from './components/ProjectCard'
 import ProjectList from './components/ProjectList'
-import RedPandaMascot from './components/RedPandaMascot'
 import ViewToggle from './components/ViewToggle'
 import { useView, ViewProvider } from './context/ViewContext'
 import { projects } from './data/projects'
@@ -40,23 +39,15 @@ function AppContent() {
         </div>
 
         <div className="relative max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 pt-20 pb-16">
-          <div className="flex items-center gap-6 sm:gap-8">
-            {/* Mascot */}
-            <div className="shrink-0 animate-fade-in">
-              <RedPandaMascot size={100} variant="full" className="hidden sm:block" />
-              <RedPandaMascot size={64} variant="head" className="sm:hidden" />
-            </div>
-
-            <div>
-              <h1 className="text-5xl sm:text-6xl lg:text-7xl font-bold tracking-tight animate-fade-in">
-                <span className="bg-gradient-to-r from-white via-white to-zinc-500 bg-clip-text text-transparent">
-                  sed.fyi
-                </span>
-              </h1>
-              <p className="mt-4 text-lg sm:text-xl text-zinc-400 max-w-2xl animate-slide-up">
-                Open-source development tools built for the modern web.
-              </p>
-            </div>
+          <div>
+            <h1 className="text-5xl sm:text-6xl lg:text-7xl font-bold tracking-tight animate-fade-in">
+              <span className="bg-gradient-to-r from-white via-white to-zinc-500 bg-clip-text text-transparent">
+                sed.fyi
+              </span>
+            </h1>
+            <p className="mt-4 text-lg sm:text-xl text-zinc-400 max-w-2xl animate-slide-up">
+              Open-source development tools built for the modern web.
+            </p>
           </div>
         </div>
       </header>
@@ -128,10 +119,7 @@ function AppContent() {
       <footer className="border-t border-white/[0.06] mt-auto">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
           <div className="flex flex-col sm:flex-row justify-between items-center gap-4">
-            <div className="flex items-center gap-2">
-              <RedPandaMascot size={24} variant="head" />
-              <p className="text-zinc-600 text-sm">&copy; {new Date().getFullYear()} sed.fyi</p>
-            </div>
+            <p className="text-zinc-600 text-sm">&copy; {new Date().getFullYear()} sed.fyi</p>
             <nav aria-label="Footer links" className="flex items-center gap-6">
               <a
                 href="https://github.com/gregnazario"
