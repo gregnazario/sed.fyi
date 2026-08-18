@@ -1,0 +1,23 @@
+version: 2
+updates:
+  # JavaScript dependencies. This project uses Bun (bun.lock); the "bun"
+  # ecosystem keeps package.json and bun.lock updated together.
+  - package-ecosystem: "bun"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+    open-pull-requests-limit: 5
+    groups:
+      # Batch routine dev-tooling bumps into a single PR to reduce noise.
+      dev-dependencies:
+        dependency-type: "development"
+        update-types:
+          - "minor"
+          - "patch"
+
+  # Keep the actions used by .github/workflows/deploy.yml current.
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+    open-pull-requests-limit: 5
