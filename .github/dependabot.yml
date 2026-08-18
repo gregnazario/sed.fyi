@@ -14,10 +14,3 @@ updates:
         update-types:
           - "minor"
           - "patch"
-
-  # Keep the actions used by .github/workflows/deploy.yml current.
-  - package-ecosystem: "github-actions"
-    directory: "/"
-    schedule:
-      interval: "weekly"
-    open-pull-requests-limit: 5
