@@ -19,7 +19,7 @@ const ProjectList = ({ project }: ProjectListProps) => {
       <div className="flex items-start gap-5">
         {/* Thumbnail */}
         {project.screenshot && !imgError && (
-          <div className="hidden sm:block flex-shrink-0 w-40 h-24 bg-zinc-900 rounded-lg overflow-hidden">
+          <div className="hidden sm:block shrink-0 w-40 h-24 bg-zinc-900 rounded-lg overflow-hidden">
             <img
               src={project.screenshot}
               alt={`${project.title} screenshot`}
@@ -32,7 +32,7 @@ const ProjectList = ({ project }: ProjectListProps) => {
         )}
 
         {/* Content */}
-        <div className="flex-grow min-w-0">
+        <div className="grow min-w-0">
           <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3 mb-2">
             <div className="flex items-center gap-3 min-w-0">
               <h3 className="text-lg font-semibold text-white group-hover:text-brand-300 transition-colors truncate">

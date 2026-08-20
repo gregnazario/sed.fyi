@@ -1,6 +1,45 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import "tailwindcss";
+
+@custom-variant dark (&:where(.dark, .dark *));
+
+@theme {
+  --font-sans: "Inter", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+
+  --color-brand-50: #fef3ee;
+  --color-brand-100: #fde4d4;
+  --color-brand-200: #fac5a6;
+  --color-brand-300: #f6a070;
+  --color-brand-400: #f17339;
+  --color-brand-500: #ee5b1e;
+  --color-brand-600: #df4311;
+  --color-brand-700: #b93210;
+  --color-brand-800: #932a15;
+  --color-brand-900: #772614;
+  --color-brand-950: #401008;
+
+  --animate-fade-in: fade-in 0.5s ease-out forwards;
+  --animate-slide-up: slide-up 0.5s ease-out forwards;
+
+  @keyframes fade-in {
+    0% {
+      opacity: 0;
+    }
+    100% {
+      opacity: 1;
+    }
+  }
+
+  @keyframes slide-up {
+    0% {
+      opacity: 0;
+      transform: translateY(12px);
+    }
+    100% {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+}
 
 @layer base {
   body {
@@ -65,21 +104,5 @@
 
   .skip-link:focus {
     top: 0;
-  }
-}
-
-@layer utilities {
-  .line-clamp-2 {
-    overflow: hidden;
-    display: -webkit-box;
-    -webkit-line-clamp: 2;
-    -webkit-box-orient: vertical;
-  }
-
-  .line-clamp-3 {
-    overflow: hidden;
-    display: -webkit-box;
-    -webkit-line-clamp: 3;
-    -webkit-box-orient: vertical;
   }
 }
