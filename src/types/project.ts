@@ -23,4 +23,9 @@ export interface Project {
   githubUrl?: string
   /** Current development status (defaults to 'active' if omitted) */
   status?: ProjectStatus
+  /**
+   * The URL points inside this site (e.g. a hash route). Opened in the same
+   * tab instead of a new one, and rendered without the external-link icon.
+   */
+  internalLink?: boolean
 }

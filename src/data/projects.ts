@@ -20,9 +20,21 @@ import type { Project } from '../types/project'
  *   screenshot: '/screenshots/my-tool.png', // optional: screenshot path
  *   githubUrl: 'https://github.com/...',    // optional: GitHub repo URL
  *   status: 'active',                       // optional: 'active' | 'beta' | 'coming-soon'
+ *   internalLink: true,                     // optional: same-site hash route (opens in same tab)
  * },
  */
 export const projects: Project[] = [
+  {
+    id: 'sed-cheatsheet',
+    title: 'sed cheatsheet',
+    description:
+      'The interactive sed cheatsheet built right into this site. Run real recipes against live text in the browser playground — powered by a sed interpreter written in TypeScript, no server required.',
+    url: '#/cheatsheet',
+    category: 'tool',
+    techStack: ['TypeScript', 'React', 'Zero-install'],
+    screenshot: '/screenshots/sed-cheatsheet.png',
+    internalLink: true,
+  },
   {
     id: 'move-playground',
     title: 'Move Playground',
