@@ -85,7 +85,7 @@ function AppContent() {
         <div className="relative max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 pt-20 pb-16">
           <div>
             <h1 className="text-5xl sm:text-6xl lg:text-7xl font-bold tracking-tight animate-fade-in">
-              <span className="bg-gradient-to-r from-white via-white to-zinc-500 bg-clip-text text-transparent">
+              <span className="bg-linear-to-r from-white via-white to-zinc-500 bg-clip-text text-transparent">
                 sed.fyi
               </span>
             </h1>
@@ -134,7 +134,7 @@ function AppContent() {
       {/* Projects */}
       <main
         id="projects"
-        className="flex-grow max-w-6xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-12"
+        className="grow max-w-6xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-12"
         aria-label="Projects"
       >
         {filteredProjects.length > 0 ? (

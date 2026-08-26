@@ -15,15 +15,14 @@
   },
   "devDependencies": {
     "@biomejs/biome": "^2.5.8",
+    "@tailwindcss/vite": "^4.3.3",
     "@types/react": "^19.2.18",
     "@types/react-dom": "^19.2.4",
     "@vitejs/plugin-react": "^6.0.5",
-    "autoprefixer": "^10.5.4",
     "bun-types": "^1.4.0",
-    "postcss": "^8.5.26",
     "puppeteer": "^25.8.0",
     "sharp": "^0.35.3",
-    "tailwindcss": "^3.4.1",
+    "tailwindcss": "^4.3.3",
     "typescript": "^7.0.2",
     "vite": "^8.2.1"
   },

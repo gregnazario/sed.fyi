@@ -54,5 +54,10 @@
       "bracketSameLine": false,
       "bracketSpacing": true
     }
+  },
+  "css": {
+    "parser": {
+      "tailwindDirectives": true
+    }
   }
 }

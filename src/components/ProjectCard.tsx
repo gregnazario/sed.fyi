@@ -28,7 +28,7 @@ const ProjectCard = ({ project }: ProjectCardProps) => {
             onError={() => setImgError(true)}
           />
         ) : (
-          <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-brand-500/10 to-amber-500/10">
+          <div className="w-full h-full flex items-center justify-center bg-linear-to-br from-brand-500/10 to-amber-500/10">
             <span className="text-3xl font-bold text-zinc-700" aria-hidden="true">
               {project.title[0]}
             </span>
