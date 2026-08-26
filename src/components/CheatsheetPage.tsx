@@ -133,7 +133,7 @@ function CheatsheetPage() {
             tabIndex={-1}
             className="mt-4 text-4xl sm:text-5xl font-bold tracking-tight outline-none"
           >
-            <span className="bg-gradient-to-r from-white via-white to-zinc-500 bg-clip-text text-transparent">
+            <span className="bg-linear-to-r from-white via-white to-zinc-500 bg-clip-text text-transparent">
               the interactive sed cheatsheet
             </span>
           </h1>
@@ -154,7 +154,7 @@ function CheatsheetPage() {
 
       <main
         id="cs-main"
-        className="flex-grow w-full max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-10"
+        className="grow w-full max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-10"
       >
         {/* Playground */}
         <div ref={playgroundRef} className="scroll-mt-6">

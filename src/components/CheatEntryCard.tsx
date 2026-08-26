@@ -56,7 +56,7 @@ const CheatEntryCard = ({ entry, onTry }: CheatEntryCardProps) => {
       <div className="p-5 pb-4">
         {/* Command row */}
         <div className="flex items-center justify-between gap-2 mb-3">
-          <code className="flex-grow min-w-0 font-mono text-[13px] text-brand-300 bg-zinc-900/70 border border-white/[0.06] rounded-lg px-3 py-2 overflow-x-auto whitespace-pre">
+          <code className="grow min-w-0 font-mono text-[13px] text-brand-300 bg-zinc-900/70 border border-white/[0.06] rounded-lg px-3 py-2 overflow-x-auto whitespace-pre">
             <span className="text-zinc-600 select-none">$ </span>
             <span className="text-zinc-400 select-none">
               sed{entry.quiet ? ' -n' : ''}

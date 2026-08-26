@@ -107,7 +107,7 @@ const SedPlayground = ({ state, onChange, commandInputRef }: SedPlaygroundProps)
         <label htmlFor="sed-script" className="sr-only">
           sed command
         </label>
-        <div className="flex items-center flex-grow min-w-0 gap-2 bg-zinc-900/80 border border-white/[0.08] rounded-lg px-3 py-2 focus-within:border-brand-500/50 transition-colors">
+        <div className="flex items-center grow min-w-0 gap-2 bg-zinc-900/80 border border-white/[0.08] rounded-lg px-3 py-2 focus-within:border-brand-500/50 transition-colors">
           <span
             className="text-brand-400 font-mono text-sm select-none shrink-0"
             aria-hidden="true"
@@ -129,7 +129,7 @@ const SedPlayground = ({ state, onChange, commandInputRef }: SedPlaygroundProps)
             spellCheck={false}
             autoComplete="off"
             placeholder="'s/find/replace/'"
-            className="flex-grow min-w-0 bg-transparent font-mono text-sm text-zinc-100 placeholder:text-zinc-600 outline-none"
+            className="grow min-w-0 bg-transparent font-mono text-sm text-zinc-100 placeholder:text-zinc-600 outline-none"
           />
         </div>
 
