@@ -42,6 +42,7 @@ export const projects: Project[] = [
     category: 'tool',
     techStack: ['TypeScript', 'Post-Quantum Crypto', 'Shelby Protocol', 'React'],
     screenshot: '/screenshots/pastebin.png',
+    githubUrl: 'https://github.com/gregnazario/pastebin',
   },
   {
     id: 'tubes',
