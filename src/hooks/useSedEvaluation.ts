@@ -25,44 +25,58 @@ export function useSedEvaluation(
   const workerRef = useRef<Worker | null>(null)
   const requestId = useRef(0)
   const timerRef = useRef<number | undefined>(undefined)
+  /** True while a request is out and its answer hasn't come back. */
+  const awaitingResponse = useRef(false)
 
-  // Latest-wins: responses for superseded requests are ignored, and a
-  // response cancels its pending timeout so the watchdog can never
-  // clobber a healthy result that arrived in time.
   const handleMessage = useRef((event: MessageEvent<SedResponse>) => {
     if (event.data.id !== requestId.current) return
+    awaitingResponse.current = false
     window.clearTimeout(timerRef.current)
     setEvaluation({ kind: 'result', result: event.data.result })
   })
 
-  useEffect(() => {
+  const spawnWorker = useRef(() => {
     const worker = new Worker(WORKER_URL, { type: 'module' })
     worker.onmessage = handleMessage.current
     workerRef.current = worker
+  })
+
+  useEffect(() => {
+    spawnWorker.current()
     return () => {
       window.clearTimeout(timerRef.current)
-      worker.terminate()
+      // Terminate whatever worker is CURRENT: the watchdog may have swapped
+      // in a replacement after a timeout, and a stuck evaluation on that
+      // replacement must not outlive the component.
+      workerRef.current?.terminate()
+      workerRef.current = null
     }
   }, [])
 
   useEffect(() => {
-    const worker = workerRef.current
-    if (!worker) return
     const id = ++requestId.current
+    // A stuck RegExp.exec blocks the worker's message queue — posting onto
+    // it would leave this request unserved until the watchdog fired. If the
+    // previous request was never answered, retire that worker first so this
+    // evaluation starts on a clean one.
+    if (awaitingResponse.current) {
+      workerRef.current?.terminate()
+      spawnWorker.current()
+    }
+    awaitingResponse.current = true
     const request: SedRequest = {
       id,
       script,
       input,
       options: { quiet, extendedRegex },
     }
-    worker.postMessage(request)
+    workerRef.current?.postMessage(request)
 
     timerRef.current = window.setTimeout(() => {
       if (requestId.current !== id) return
-      worker.terminate()
-      const replacement = new Worker(WORKER_URL, { type: 'module' })
-      replacement.onmessage = handleMessage.current
-      workerRef.current = replacement
+      awaitingResponse.current = false
+      workerRef.current?.terminate()
+      spawnWorker.current()
       setEvaluation({ kind: 'timeout' })
     }, EVALUATION_TIMEOUT_MS)
 

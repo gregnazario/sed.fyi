@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { cheatCategories, cheatEntries } from '../data/cheatsheet'
 import { navigate } from '../hooks/useHashRoute'
 import type { CheatEntry } from '../types/cheatsheet'
@@ -29,22 +29,40 @@ function CheatsheetPage() {
   }, [])
 
   // Debounced persistence: keystrokes shouldn't serialize (potentially
-  // large) stdin on every render.
+  // large) stdin on every render. The debounce never eats the last edit —
+  // unmount and tab-close (pagehide) flush whatever is committed.
   const savedSnapshot = useRef('')
+  const latestPlayground = useRef(playground)
+  const persist = useCallback((serialized: string) => {
+    try {
+      localStorage.setItem(PLAYGROUND_STORAGE_KEY, serialized)
+    } catch {
+      // Storage may be unavailable (private mode); the session still works.
+    }
+    savedSnapshot.current = serialized
+  }, [])
+
   useEffect(() => {
+    latestPlayground.current = playground
     if (!loadedFromStorage.current) return
     const serialized = JSON.stringify(playground)
     if (serialized === savedSnapshot.current) return
-    const timer = window.setTimeout(() => {
-      try {
-        localStorage.setItem(PLAYGROUND_STORAGE_KEY, serialized)
-        savedSnapshot.current = serialized
-      } catch {
-        // Storage may be unavailable (private mode); the session still works.
-      }
-    }, 300)
+    const timer = window.setTimeout(() => persist(serialized), 300)
     return () => window.clearTimeout(timer)
-  }, [playground])
+  }, [playground, persist])
+
+  useEffect(() => {
+    const flush = () => {
+      if (!loadedFromStorage.current) return
+      const serialized = JSON.stringify(latestPlayground.current)
+      if (serialized !== savedSnapshot.current) persist(serialized)
+    }
+    window.addEventListener('pagehide', flush)
+    return () => {
+      window.removeEventListener('pagehide', flush)
+      flush()
+    }
+  }, [persist])
 
   useEffect(() => {
     document.title = 'interactive sed cheatsheet — sed.fyi'
