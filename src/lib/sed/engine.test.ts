@@ -261,3 +261,51 @@ describe('edge cases', () => {
     expect(ok('s/a/X/ ; s/b/Y/', 'ab')).toBe('XY\n')
   })
 })
+
+describe('bugbot regressions', () => {
+  const five = 'one\ntwo\nthree\nfour\nfive\n'
+
+  test('numeric end at/before opening line makes a one-line range', () => {
+    expect(ok('2,2d', five)).toBe('one\nthree\nfour\nfive\n')
+    expect(ok('3,2d', five)).toBe('one\ntwo\nfour\nfive\n')
+    expect(ok('/two/,2d', five)).toBe('one\nthree\nfour\nfive\n')
+    // regex ends still scan from the following line
+    expect(ok('/two/,/four/d', five)).toBe('one\nfive\n')
+    expect(ok('2,+1d', five)).toBe('one\nfour\nfive\n')
+  })
+
+  test('gN and Ng flag orders both mean "skip past N-1, then global"', () => {
+    // GNU: ignore matches before the numberth, then act as if g was given.
+    expect(ok('s/a/-/2g', 'aaaa')).toBe('a---\n')
+    expect(ok('s/a/-/g2', 'aaaa')).toBe('a---\n')
+  })
+
+  test('\\0 in the replacement is the whole match', () => {
+    expect(ok('s/[0-9][0-9]*/[\\0]/g', 'ab12cd345')).toBe('ab[12]cd[345]\n')
+  })
+
+  test('persistent + one-shot case ops compose positionally', () => {
+    expect(ok('s/.*/\\L\\u&/', 'HELLO WORLD')).toBe('Hello world\n')
+    expect(ok('s/.*/\\U\\l&/', 'hello world')).toBe('hELLO WORLD\n')
+    expect(ok('s/[a-z]+/<\\U&>/g', 'foo bar', { extendedRegex: true })).toBe('<FOO> <BAR>\n')
+  })
+
+  test('reading input via N resets the t-flag (POSIX)', () => {
+    // Cycle 1 substitutes (sets the flag), then N reads a fresh line
+    // (must clear it), so `t` does NOT fire and the explicit p runs.
+    // Cycle 2 hits EOF inside N, leaving that cycle's substitution flag
+    // intact — t fires and p is skipped.
+    expect(ok('s/^/SUB /;$!N;t;p', 'aa\nbb\ncc\n', { quiet: true })).toBe('SUB aa\nbb\n')
+  })
+
+  test('a/backslash/space one-liner variant parses text after the backslash', () => {
+    expect(ok('/b/a\\ appended!', 'a\nb\nc\n')).toBe('a\nb\nappended!\nc\n')
+    expect(err('1a\\', 'x')).toContain("expected \\ after `a'")
+  })
+
+  test('q still drops queued append text (POSIX flush timing)', () => {
+    // two matches /two/; its queued X is dropped because q exits before
+    // the end-of-cycle flush, and line three never gets read.
+    expect(ok('/two/{a X\nq}', 'one\ntwo\nthree\n')).toBe('one\ntwo\n')
+  })
+})

@@ -97,7 +97,7 @@ export const cheatEntries: CheatEntry[] = [
     summary: 'Print only matching lines (-n p)',
     detail:
       '-n silences the automatic per-line print, so only explicit p commands produce output. This pair is the standard grep-like mode of sed.',
-    sampleInput: 'first\nfind me here\nthird\nanother find me line\nlast\n',
+    sampleInput: 'first\nhere is a pattern\nthird\nanother pattern line\nlast\n',
     quiet: true,
   },
   {
@@ -137,8 +137,8 @@ export const cheatEntries: CheatEntry[] = [
     command: '/debug/d',
     summary: 'Delete lines containing a pattern',
     detail:
-      'd starts the next cycle immediately — nothing further in the script runs and the line is never printed.',
-    sampleInput: 'INFO server started\nDEBUG probe tick\nwarn disk low\nDEBUG cache miss\n',
+      'd starts the next cycle immediately — nothing further in the script runs and the line is never printed. Matching is case-sensitive; use /DEBUG/Id (GNU) for insensitive.',
+    sampleInput: 'INFO server started\ndebug probe tick\nwarn disk low\ndebug cache miss\n',
   },
   {
     id: 'delete-blank-lines',
@@ -199,12 +199,13 @@ export const cheatEntries: CheatEntry[] = [
   {
     id: 'append-after-match',
     category: 'textEditing',
-    command: '/server {/a \\    proxy_pass http://upstream;',
+    // Classic two-line form (`a\` + real newline): keeps `;` as literal
+    // text and works on both GNU and BSD sed.
+    command: '/server {/a\\\n    proxy_pass http://upstream;',
     summary: 'Append a line after every block opener',
     detail:
-      'With -i.sed (in-place edit, GNU/BSD flag differences aside) this style of insertion is how people script nginx edits safely.',
+      'Uses the classic `a\\`-then-newline form so appended text may contain semicolons verbatim, on any sed. Pair with sed -i to edit config files in place.',
     sampleInput: 'server {\n  listen 80;\n}\nserver {\n  listen 443;\n}\n',
-    gnuOnly: true,
   },
   {
     id: 'change-matching-line',

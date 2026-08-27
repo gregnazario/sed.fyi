@@ -331,8 +331,8 @@ class Parser {
       } else if (f === 'm' || f === 'M') {
         // Anchor-per-line behavior is always-on in this playground.
       } else if (/\d/.test(f)) {
-        if (nth !== null || global)
-          this.fail("number option to `s' command may only be specified once")
+        if (nth !== null) this.fail("number option to `s' command may only be specified once")
+        // gN / Ng are both legal GNU orderings: "replace from Nth onward".
         nth = this.readNumber()
         continue
       } else if ('wWeErE'.includes(f)) {
@@ -444,7 +444,14 @@ class Parser {
       text = nl === -1 ? this.src.slice(this.pos) : this.src.slice(this.pos, nl)
       this.pos = nl === -1 ? this.src.length : nl
     } else {
-      if (this.peek() === ' ') this.pos++ // GNU one-liner: `a text`
+      // Same-line forms: `a text` (GNU), and `a\ text` where a backslash
+      // precedes the text. Both take the rest of the line as the argument;
+      // an unescaped `;` still ends the command, matching GNU.
+      if (this.peek() === '\\') {
+        this.pos++
+        if (this.peek() === undefined) this.fail(`expected \\ after \`${kind}'`)
+      }
+      if (this.peek() === ' ') this.pos++
       for (;;) {
         const ch = this.peek()
         if (ch === undefined || ch === '\n') break

@@ -154,13 +154,20 @@ class Engine {
       included = this.evalAddr(spec.a)
     } else if (!working.active) {
       if (this.evalAddr(spec.a)) {
-        // Activation line: the range's END is deliberately not evaluated
-        // here — real seds only start matching the end address on the NEXT
-        // line. (That is exactly what GNU's `0,/re/` exists to override.)
         working.active = true
         included = true
         if (spec.b.type === 'offset') {
           working.offsetLeft = spec.b.plus
+        } else if (spec.b.type === 'line') {
+          // A numeric END at or before the opening line makes a one-line
+          // range: `2,2d` deletes exactly line 2, and backwards `3,2d`
+          // likewise covers only the line that opened it. (Verified against
+          // real sed.) Regex/step/last ends stay deferred to later lines —
+          // GNU's `0,/re/` exists precisely because regex ends never match
+          // on the opening line.
+          const endLine = spec.b.line
+          const openedAt = spec.a.type === 'line' ? spec.a.line : this.lineNo
+          if (endLine <= openedAt) working.active = false
         }
       } else {
         included = false
@@ -221,7 +228,10 @@ class Engine {
           break cycleLoop
         case 'quit':
           if (!this.options.quiet) this.out.push(`${this.ps}\n`)
-          this.appendQueue = []
+          // Pending `a` text is dropped on q: queue flushes only happen at
+          // end-of-cycle during normal flow, and q exits before that point
+          // (POSIX specifies a-text is written "before reading the next
+          // input line", which never arrives after quit).
           break cycleLoop
         case 'stopNormal':
         case 'none':
@@ -365,6 +375,9 @@ class Engine {
         } else {
           this.ps += `\n${this.lines[this.nextLineIdx++]}`
           this.lineNo++
+          // Reading input via N resets the t-flag too (POSIX: "since the
+          // last input line was read or conditional branch was taken").
+          this.substitutedSinceT = false
         }
         break
       case 'h':
@@ -494,11 +507,14 @@ class Engine {
 
     const applyCase = (text: string): string => {
       let t = text
+      // Persistent \U/\L apply to the whole chunk first; a one-shot \u/\l
+      // then re-modifies the resulting first character — so `s/.*/\L\u&/`
+      // title-cases ("Hello world"), matching GNU's positional composition.
+      if (baseMode === 'U') t = t.toUpperCase()
+      else if (baseMode === 'L') t = t.toLowerCase()
       if (oneShot === 'u') t = capFirst(t)
       else if (oneShot === 'l') t = lowerFirst(t)
       oneShot = null
-      if (baseMode === 'U') t = t.toUpperCase()
-      else if (baseMode === 'L') t = t.toLowerCase()
       return t
     }
 
@@ -511,7 +527,8 @@ class Engine {
           out += applyCase(fullMatch)
           break
         case 'group':
-          out += applyCase(groups[part.n - 1] ?? '')
+          // \0 is the whole match, like GNU sed.
+          out += applyCase(part.n === 0 ? fullMatch : (groups[part.n - 1] ?? ''))
           break
         case 'case':
           if (part.mode === 'E') baseMode = null

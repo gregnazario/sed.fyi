@@ -154,7 +154,8 @@ function CheatsheetPage() {
 
       <main
         id="cs-main"
-        className="grow w-full max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-10"
+        tabIndex={-1}
+        className="grow w-full max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-10 outline-none"
       >
         {/* Playground */}
         <div ref={playgroundRef} className="scroll-mt-6">
