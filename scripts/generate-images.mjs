@@ -36,6 +36,14 @@ async function generate() {
     .png()
     .toFile(resolve(publicDir, 'apple-touch-icon.png'))
   console.log('  apple-touch-icon.png  180x180')
+
+  // sed cheatsheet card screenshot — registry card thumbnail
+  const cheatSvg = readFileSync(resolve(publicDir, 'screenshots', 'sed-cheatsheet.svg'))
+  await sharp(cheatSvg, { density: 150 })
+    .resize(1600, 1000)
+    .png({ quality: 90 })
+    .toFile(resolve(publicDir, 'screenshots', 'sed-cheatsheet.png'))
+  console.log('  sed-cheatsheet.png 1600x1000')
 }
 
 console.log('Generating PNG assets...\n')

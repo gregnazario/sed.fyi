@@ -19,7 +19,7 @@ const ProjectList = ({ project }: ProjectListProps) => {
       <div className="flex items-start gap-5">
         {/* Thumbnail */}
         {project.screenshot && !imgError && (
-          <div className="hidden sm:block flex-shrink-0 w-40 h-24 bg-zinc-900 rounded-lg overflow-hidden">
+          <div className="hidden sm:block shrink-0 w-40 h-24 bg-zinc-900 rounded-lg overflow-hidden">
             <img
               src={project.screenshot}
               alt={`${project.title} screenshot`}
@@ -32,7 +32,7 @@ const ProjectList = ({ project }: ProjectListProps) => {
         )}
 
         {/* Content */}
-        <div className="flex-grow min-w-0">
+        <div className="grow min-w-0">
           <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3 mb-2">
             <div className="flex items-center gap-3 min-w-0">
               <h3 className="text-lg font-semibold text-white group-hover:text-brand-300 transition-colors truncate">
@@ -49,11 +49,10 @@ const ProjectList = ({ project }: ProjectListProps) => {
             <div className="flex items-center gap-2 shrink-0">
               <a
                 href={project.url}
-                target="_blank"
-                rel="noopener noreferrer"
+                {...(project.internalLink ? {} : { target: '_blank', rel: 'noopener noreferrer' })}
                 className="inline-flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium bg-brand-500/15 text-brand-300 border border-brand-500/25 rounded-lg hover:bg-brand-500/25 hover:border-brand-500/40 transition-all"
               >
-                Visit
+                {project.internalLink ? 'Open' : 'Visit'}
                 <svg
                   className="w-3.5 h-3.5"
                   fill="none"
@@ -65,7 +64,11 @@ const ProjectList = ({ project }: ProjectListProps) => {
                     strokeLinecap="round"
                     strokeLinejoin="round"
                     strokeWidth={2}
-                    d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"
+                    d={
+                      project.internalLink
+                        ? 'M13 7l5 5-5 5M6 12h12'
+                        : 'M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14'
+                    }
                   />
                 </svg>
               </a>

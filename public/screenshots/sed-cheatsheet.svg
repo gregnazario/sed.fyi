@@ -1,0 +1,53 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="1000" viewBox="0 0 1600 1000" role="img" aria-label="Terminal running sed commands over sample text">
+  <!-- Background -->
+  <rect width="1600" height="1000" fill="#09090b"/>
+
+  <!-- Ambient brand glows -->
+  <radialGradient id="glowA" cx="50%" cy="50%" r="50%">
+    <stop offset="0%" stop-color="#ee5b1e" stop-opacity="0.22"/>
+    <stop offset="100%" stop-color="#ee5b1e" stop-opacity="0"/>
+  </radialGradient>
+  <radialGradient id="glowB" cx="50%" cy="50%" r="50%">
+    <stop offset="0%" stop-color="#f59e0b" stop-opacity="0.14"/>
+    <stop offset="100%" stop-color="#f59e0b" stop-opacity="0"/>
+  </radialGradient>
+  <circle cx="260" cy="180" r="520" fill="url(#glowA)"/>
+  <circle cx="1420" cy="860" r="560" fill="url(#glowB)"/>
+
+  <!-- Terminal window -->
+  <rect x="90" y="90" width="1420" height="820" rx="28" fill="#111113" stroke="#ffffff" stroke-opacity="0.08" stroke-width="2"/>
+  <rect x="90" y="90" width="1420" height="76" rx="28" fill="#18181b"/>
+  <rect x="90" y="138" width="1420" height="28" fill="#18181b"/>
+
+  <!-- Window dots -->
+  <circle cx="146" cy="128" r="11" fill="#52525b"/>
+  <circle cx="184" cy="128" r="11" fill="#52525b"/>
+  <circle cx="222" cy="128" r="11" fill="#52525b"/>
+
+  <!-- Window title -->
+  <text x="800" y="135" text-anchor="middle" font-family="Menlo, 'SF Mono', monospace" font-size="26" fill="#71717a">sed - playground</text>
+
+  <!-- Terminal content -->
+  <g font-family="Menlo, 'SF Mono', monospace" font-size="34" xml:space="preserve">
+    <text x="150" y="240">
+      <tspan fill="#ee5b1e">$</tspan><tspan fill="#d4d4d8"> echo '</tspan><tspan fill="#a78bfa">two cups of tea</tspan><tspan fill="#d4d4d8">' | sed '</tspan><tspan fill="#fbbf24">s/tea/coffee/g</tspan><tspan fill="#d4d4d8">'</tspan>
+    </text>
+    <text x="150" y="330" fill="#86efac">two cups of coffee</text>
+
+    <text x="150" y="470">
+      <tspan fill="#ee5b1e">$</tspan><tspan fill="#d4d4d8"> sed '</tspan><tspan fill="#fbbf24">1!G;h;$!d</tspan><tspan fill="#d4d4d8">' notes.txt</tspan>
+    </text>
+    <text x="150" y="560" fill="#86efac">reversed.</text>
+    <text x="150" y="610" fill="#86efac">lines the</text>
+    <text x="150" y="660" fill="#86efac">flips it</text>
+    <text x="150" y="710" fill="#86efac">sed</text>
+
+    <text x="150" y="850"><tspan fill="#ee5b1e">$</tspan><tspan fill="#3f3f46">&#9612;</tspan></text>
+  </g>
+
+  <!-- Corner tag -->
+  <g transform="translate(1272, 846)">
+    <rect x="0" y="0" width="178" height="44" rx="22" fill="#ee5b1e" fill-opacity="0.14" stroke="#ee5b1e" stroke-opacity="0.35" stroke-width="2"/>
+    <text x="89" y="29" text-anchor="middle" font-family="-apple-system, 'Helvetica Neue', Arial, sans-serif" font-size="20" font-weight="600" fill="#f6a070">live &#183; built-in</text>
+  </g>
+</svg>
