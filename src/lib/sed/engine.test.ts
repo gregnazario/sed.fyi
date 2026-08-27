@@ -253,8 +253,12 @@ describe('edge cases', () => {
     expect(ok('$s/^/> /', 'a\nlast')).toBe('a\n> last\n')
   })
 
-  test('anchors treat embedded newlines as line boundaries inside PS', () => {
-    expect(ok('$!N;s/^2$/TWO/', '1\n2\n')).toBe('1\nTWO\n')
+  test('anchors match only at pattern-space boundaries by default', () => {
+    // Real seds leave this unchanged: ^/$ do NOT match at embedded
+    // newlines without GNU's M modifier.
+    expect(ok('$!N;s/^2$/TWO/', '1\n2\n')).toBe('1\n2\n')
+    // GNU M flag opts a single pattern into per-line anchoring.
+    expect(ok('$!N;s/^2$/TWO/M', '1\n2\n')).toBe('1\nTWO\n')
   })
 
   test('unusual but legal whitespace between commands', () => {
@@ -298,9 +302,16 @@ describe('bugbot regressions', () => {
     expect(ok('s/^/SUB /;$!N;t;p', 'aa\nbb\ncc\n', { quiet: true })).toBe('SUB aa\nbb\n')
   })
 
-  test('a/backslash/space one-liner variant parses text after the backslash', () => {
-    expect(ok('/b/a\\ appended!', 'a\nb\nc\n')).toBe('a\nb\nappended!\nc\n')
+  test('GNU same-line a/i/c text runs to end of line', () => {
+    // `;` is literal text in same-line form — no command chaining after it.
+    expect(ok('/b/a append;still text', 'a\nb\nc\n')).toBe('a\nb\nappend;still text\nc\n')
+    // Bare form strips one leading space.
+    expect(ok('/b/a appended!', 'a\nb\nc\n')).toBe('a\nb\nappended!\nc\n')
+    // Backslash form protects leading whitespace.
+    expect(ok('/b/a\\     indented', 'a\nb\nc\n')).toBe('a\nb\n     indented\nc\n')
     expect(err('1a\\', 'x')).toContain("expected \\ after `a'")
+    // Classic two-line form still works everywhere.
+    expect(ok('1i\\\nHEADER', 'start')).toBe('HEADER\nstart\n')
   })
 
   test('q still drops queued append text (POSIX flush timing)', () => {

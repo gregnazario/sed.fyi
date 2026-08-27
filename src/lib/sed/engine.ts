@@ -18,8 +18,14 @@ export interface RunOptions {
 
 export type SedResult = { ok: true; output: string } | { ok: false; error: string }
 
-/** Safety valve so a script like `:a;ta` can't hang the tab. */
-const MAX_EXEC_STEPS = 250_000
+/**
+ * Safety valve so a script like `:a;ta` can't hang the tab. The floor is the
+ * fixed budget; it scales with input so legitimate per-line scripts (like
+ * `1!G;h;$!d` on big files) don't trip it, and the ceiling bounds worst case.
+ */
+const MIN_EXEC_STEPS = 250_000
+const MAX_EXEC_STEPS = 5_000_000
+const STEPS_PER_LINE_PER_NODE = 400
 
 /** Branch signal: jump to a top-level node index (null = past end of script). */
 class JumpSignal extends Error {
@@ -61,6 +67,7 @@ class Engine {
   private readonly rangeStates = new Map<Node, RangeState>()
   private readonly labelIndex = new Map<string, number>()
   private readonly regexCache = new Map<string, RegExp>()
+  private readonly maxSteps: number
 
   constructor(
     private readonly nodes: Node[],
@@ -70,6 +77,10 @@ class Engine {
     nodes.forEach((node, i) => {
       if (node.cmd.op === 'label') this.labelIndex.set(node.cmd.name, i)
     })
+    this.maxSteps = Math.min(
+      MAX_EXEC_STEPS,
+      Math.max(MIN_EXEC_STEPS, lines.length * countNodes(nodes) * STEPS_PER_LINE_PER_NODE),
+    )
   }
 
   static run(script: string, input: string, options: RunOptions): SedResult {
@@ -101,13 +112,18 @@ class Engine {
 
   // ---- regex helpers ------------------------------------------------------
 
-  /** All patterns compile with `gm`: ^/$ anchor at every embedded line, just
-   * like GNU/BSD sed treat multi-line pattern spaces. */
-  private compile(source: string, ignoreCase: boolean): RegExp {
-    const key = `${this.options.extendedRegex ? 'E' : 'B'}${ignoreCase ? 'i' : ''}:${source}`
+  /**
+   * `^`/`$` anchor only at pattern-space boundaries by default — that is
+   * what GNU/BSD sed do, even when the pattern space contains embedded
+   * newlines from N. GNU's `M` flag opts a single pattern into matching at
+   * embedded newlines (JS's `m` flag).
+   */
+  private compile(source: string, ignoreCase: boolean, multiLine = false): RegExp {
+    const key = `${this.options.extendedRegex ? 'E' : 'B'}${ignoreCase ? 'i' : ''}${multiLine ? 'm' : ''}:${source}`
     let re = this.regexCache.get(key)
     if (!re) {
-      re = new RegExp(posixToJs(source, this.options.extendedRegex), `gm${ignoreCase ? 'i' : ''}`)
+      const flags = `g${ignoreCase ? 'i' : ''}${multiLine ? 'm' : ''}`
+      re = new RegExp(posixToJs(source, this.options.extendedRegex), flags)
       this.regexCache.set(key, re)
     }
     re.lastIndex = 0
@@ -123,7 +139,7 @@ class Engine {
       case 'last':
         return this.lineNo === this.lines.length
       case 'regex':
-        return this.compile(addr.source, addr.ignoreCase).test(this.ps)
+        return this.compile(addr.source, addr.ignoreCase, addr.multiLine).test(this.ps)
       case 'step':
         if (addr.start === 0) return this.lineNo % addr.step === 0
         return this.lineNo >= addr.start && (this.lineNo - addr.start) % addr.step === 0
@@ -281,8 +297,10 @@ class Engine {
     let pc = 0
     while (pc < list.length) {
       this.steps++
-      if (this.steps > MAX_EXEC_STEPS) {
-        throw new SedSyntaxError('script exceeded execution limit (possible infinite loop)')
+      if (this.steps > this.maxSteps) {
+        throw new SedSyntaxError(
+          'script exceeded the execution limit (possible infinite loop, or input too large for this recipe)',
+        )
       }
       const node = list[pc]
       pc++
@@ -312,8 +330,10 @@ class Engine {
     let i = 0
     while (i < body.length) {
       this.steps++
-      if (this.steps > MAX_EXEC_STEPS) {
-        throw new SedSyntaxError('script exceeded execution limit (possible infinite loop)')
+      if (this.steps > this.maxSteps) {
+        throw new SedSyntaxError(
+          'script exceeded the execution limit (possible infinite loop, or input too large for this recipe)',
+        )
       }
       const node = body[i]
       i++
@@ -451,7 +471,7 @@ class Engine {
   }
 
   private substitute(cmd: Extract<Cmd, { op: 's' }>) {
-    const re = this.compile(cmd.source, cmd.ignoreCase)
+    const re = this.compile(cmd.source, cmd.ignoreCase, cmd.multiLine)
     const src = this.ps
 
     let pass = 0
@@ -541,6 +561,18 @@ class Engine {
   }
 }
 
+function countNodes(nodes: Node[]): number {
+  let n = 0
+  const visit = (list: Node[]) => {
+    for (const node of list) {
+      n++
+      if (node.cmd.op === 'block') visit(node.cmd.body)
+    }
+  }
+  visit(nodes)
+  return n
+}
+
 function capFirst(t: string): string {
   return t === '' ? t : t.charAt(0).toUpperCase() + t.slice(1)
 }
@@ -549,10 +581,10 @@ function capFirst(t: string): string {
 function validateRegexes(nodes: Node[], extended: boolean): string | null {
   let problem: string | null = null
 
-  const checkPattern = (source: string, ignoreCase: boolean) => {
+  const checkPattern = (source: string, ignoreCase: boolean, multiLine: boolean) => {
     if (problem !== null) return
     try {
-      new RegExp(posixToJs(source, extended), ignoreCase ? 'gmi' : 'gm')
+      new RegExp(posixToJs(source, extended), `g${ignoreCase ? 'i' : ''}${multiLine ? 'm' : ''}`)
     } catch (error) {
       const message =
         error instanceof SyntaxError
@@ -566,12 +598,16 @@ function validateRegexes(nodes: Node[], extended: boolean): string | null {
     for (const node of list) {
       if (problem !== null) return
       if (node.addr) {
-        if (node.addr.a.type === 'regex') checkPattern(node.addr.a.source, node.addr.a.ignoreCase)
+        if (node.addr.a.type === 'regex') {
+          checkPattern(node.addr.a.source, node.addr.a.ignoreCase, node.addr.a.multiLine)
+        }
         if (node.addr.b && node.addr.b.type === 'regex') {
-          checkPattern(node.addr.b.source, node.addr.b.ignoreCase)
+          checkPattern(node.addr.b.source, node.addr.b.ignoreCase, node.addr.b.multiLine)
         }
       }
-      if (node.cmd.op === 's') checkPattern(node.cmd.source, node.cmd.ignoreCase)
+      if (node.cmd.op === 's') {
+        checkPattern(node.cmd.source, node.cmd.ignoreCase, node.cmd.multiLine)
+      }
       if (node.cmd.op === 'block') visit(node.cmd.body)
     }
   }

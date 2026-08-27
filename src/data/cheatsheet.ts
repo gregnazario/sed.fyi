@@ -199,13 +199,15 @@ export const cheatEntries: CheatEntry[] = [
   {
     id: 'append-after-match',
     category: 'textEditing',
-    // Classic two-line form (`a\` + real newline): keeps `;` as literal
-    // text and works on both GNU and BSD sed.
-    command: '/server {/a\\\n    proxy_pass http://upstream;',
+    // GNU same-line form: the backslash protects the leading indentation
+    // and the trailing `;` is literal text. BSD sed needs the classic
+    // two-line form (`a\` + newline) for the same script.
+    command: '/server {/a \\    proxy_pass http://upstream;',
     summary: 'Append a line after every block opener',
     detail:
-      'Uses the classic `a\\`-then-newline form so appended text may contain semicolons verbatim, on any sed. Pair with sed -i to edit config files in place.',
+      'The backslash protects the leading whitespace and text runs to end of line, so the nginx `;` lands verbatim. On BSD/macOS sed, use the classic two-line form instead. Pair with sed -i to edit in place.',
     sampleInput: 'server {\n  listen 80;\n}\nserver {\n  listen 443;\n}\n',
+    gnuOnly: true,
   },
   {
     id: 'change-matching-line',

@@ -28,13 +28,22 @@ function CheatsheetPage() {
     loadedFromStorage.current = true
   }, [])
 
+  // Debounced persistence: keystrokes shouldn't serialize (potentially
+  // large) stdin on every render.
+  const savedSnapshot = useRef('')
   useEffect(() => {
     if (!loadedFromStorage.current) return
-    try {
-      localStorage.setItem(PLAYGROUND_STORAGE_KEY, JSON.stringify(playground))
-    } catch {
-      // Storage may be unavailable (private mode); the session still works.
-    }
+    const serialized = JSON.stringify(playground)
+    if (serialized === savedSnapshot.current) return
+    const timer = window.setTimeout(() => {
+      try {
+        localStorage.setItem(PLAYGROUND_STORAGE_KEY, serialized)
+        savedSnapshot.current = serialized
+      } catch {
+        // Storage may be unavailable (private mode); the session still works.
+      }
+    }, 300)
+    return () => window.clearTimeout(timer)
   }, [playground])
 
   useEffect(() => {

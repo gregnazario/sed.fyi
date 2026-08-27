@@ -16,7 +16,7 @@
 export type Addr =
   | { type: 'line'; line: number }
   | { type: 'last' }
-  | { type: 'regex'; source: string; ignoreCase: boolean }
+  | { type: 'regex'; source: string; ignoreCase: boolean; multiLine: boolean }
   | { type: 'step'; start: number; step: number }
 
 /** Second half of a range: another address, or a GNU "+N line offset". */
@@ -38,6 +38,7 @@ export type Cmd =
       op: 's'
       source: string
       ignoreCase: boolean
+      multiLine: boolean
       replacement: ReplPart[]
       global: boolean
       printMatch: boolean
@@ -215,11 +216,14 @@ class Parser {
       this.pos++ // step past the opening delimiter
       const source = this.scanRegexBody(delim)
       let ignoreCase = false
+      let multiLine = false
       while (this.peek() === 'I' || this.peek() === 'M') {
         if (this.peek() === 'I') ignoreCase = true
+        if (this.peek() === 'M') multiLine = true
         this.pos++
       }
-      return { type: 'regex', source, ignoreCase }
+      // GNU `M`: anchors additionally match at embedded newlines.
+      return { type: 'regex', source, ignoreCase, multiLine }
     }
 
     const n = this.readNumber()
@@ -312,6 +316,7 @@ class Parser {
     let global = false
     let printMatch = false
     let ignoreCase = false
+    let multiLine = false
     let nth: number | null = null
     for (;;) {
       const f = this.peek()
@@ -329,7 +334,8 @@ class Parser {
       } else if (f === 'i' || f === 'I') {
         ignoreCase = true
       } else if (f === 'm' || f === 'M') {
-        // Anchor-per-line behavior is always-on in this playground.
+        // GNU `M`: anchors additionally match at embedded newlines.
+        multiLine = true
       } else if (/\d/.test(f)) {
         if (nth !== null) this.fail("number option to `s' command may only be specified once")
         // gN / Ng are both legal GNU orderings: "replace from Nth onward".
@@ -348,6 +354,7 @@ class Parser {
       op: 's',
       source,
       ignoreCase,
+      multiLine,
       replacement: this.parseReplacement(rawRepl),
       global,
       printMatch,
@@ -444,29 +451,24 @@ class Parser {
       text = nl === -1 ? this.src.slice(this.pos) : this.src.slice(this.pos, nl)
       this.pos = nl === -1 ? this.src.length : nl
     } else {
-      // Same-line forms: `a text` (GNU), and `a\ text` where a backslash
-      // precedes the text. Both take the rest of the line as the argument;
-      // an unescaped `;` still ends the command, matching GNU.
-      if (this.peek() === '\\') {
+      // Same-line GNU forms: text runs to the END OF THE LINE — an
+      // unescaped `;` is literal text (that's why you can't chain commands
+      // after it). Bare `a text` strips one leading space; the `a\` form
+      // preserves everything after the backslash, protecting leading
+      // whitespace (`a\    indented` keeps the spaces).
+      if (this.peek() === ' ') this.pos++ // exactly one space is stripped
+      const protected_ = this.peek() === '\\'
+      if (protected_) {
+        // `a \    text`: the backslash protects the remaining leading
+        // whitespace instead of being part of the text.
         this.pos++
         if (this.peek() === undefined) this.fail(`expected \\ after \`${kind}'`)
       }
-      if (this.peek() === ' ') this.pos++
-      for (;;) {
-        const ch = this.peek()
-        if (ch === undefined || ch === '\n') break
-        if (ch === ';') {
-          this.pos++
-          break
-        }
-        if (ch === '\\' && this.peek(1) === ';') {
-          text += ';'
-          this.pos += 2
-          continue
-        }
-        text += ch
+      while (!this.eof() && this.peek() !== '\n') {
+        text += this.peek()
         this.pos++
       }
+      void protected_
     }
     const op = kind === 'a' ? 'append' : kind === 'i' ? 'insert' : 'change'
     return { op, text } as Cmd

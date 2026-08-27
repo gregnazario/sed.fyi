@@ -1,5 +1,5 @@
-import { useEffect, useMemo, useState } from 'react'
-import { runSed } from '../lib/sed'
+import { useEffect, useState } from 'react'
+import { useSedEvaluation } from '../hooks/useSedEvaluation'
 
 export interface PlaygroundState {
   script: string
@@ -91,11 +91,9 @@ interface SedPlaygroundProps {
 }
 
 const SedPlayground = ({ state, onChange, commandInputRef }: SedPlaygroundProps) => {
-  const result = useMemo(
-    () =>
-      runSed(state.script, state.input, { quiet: state.quiet, extendedRegex: state.extendedRegex }),
-    [state.script, state.input, state.quiet, state.extendedRegex],
-  )
+  // Off the main thread with a time budget: pathological regexes degrade to
+  // a timeout message instead of freezing the tab.
+  const evaluation = useSedEvaluation(state.script, state.input, state.quiet, state.extendedRegex)
 
   return (
     <section
@@ -214,12 +212,22 @@ const SedPlayground = ({ state, onChange, commandInputRef }: SedPlaygroundProps)
             <span className="text-xs font-medium uppercase tracking-wider text-zinc-500">
               stdout
             </span>
-            {result.ok && <CopyButton text={result.output} label="Copy output" />}
+            {evaluation.kind === 'result' && evaluation.result.ok && (
+              <CopyButton text={evaluation.result.output} label="Copy output" />
+            )}
           </div>
-          {result.ok ? (
+          {evaluation.kind === 'timeout' ? (
+            <div
+              role="alert"
+              className="font-mono text-sm leading-relaxed text-amber-300 bg-amber-500/10 border border-amber-500/25 rounded-lg px-3 py-2"
+            >
+              sed: execution exceeded 2s — the pattern is likely too pathological (catastrophic
+              backtracking). Tame the regex or the input size.
+            </div>
+          ) : evaluation.result.ok ? (
             <div role="status" aria-label="Command output">
               <pre className="font-mono text-sm leading-relaxed text-zinc-100 whitespace-pre-wrap break-all max-h-72 overflow-auto scrollbar-none">
-                {result.output || <span className="text-zinc-600">(empty)</span>}
+                {evaluation.result.output || <span className="text-zinc-600">(empty)</span>}
               </pre>
             </div>
           ) : (
@@ -227,7 +235,7 @@ const SedPlayground = ({ state, onChange, commandInputRef }: SedPlaygroundProps)
               role="alert"
               className="font-mono text-sm leading-relaxed text-red-300 bg-red-500/10 border border-red-500/25 rounded-lg px-3 py-2"
             >
-              sed: {result.error}
+              sed: {evaluation.result.error}
             </div>
           )}
         </div>
