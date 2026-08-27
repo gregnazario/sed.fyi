@@ -21,7 +21,10 @@ function CheatsheetPage() {
   const commandInputRef = useRef<HTMLInputElement | null>(null)
   const flashTimer = useRef<number | undefined>(undefined)
   const headingRef = useRef<HTMLHeadingElement | null>(null)
-  const savedSnapshot = useRef(JSON.stringify(playground))
+  // Serialize only once (lazy init) — a plain useRef(expr) would re-serialize
+  // on every render for large stdin.
+  const savedSnapshot = useRef<string | null>(null)
+  if (savedSnapshot.current === null) savedSnapshot.current = JSON.stringify(playground)
   const latestPlayground = useRef(playground)
 
   // Debounced persistence: keystrokes shouldn't serialize (potentially

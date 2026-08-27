@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react'
+import { memo, useEffect, useMemo, useState } from 'react'
 import { runSed } from '../lib/sed'
 import type { CheatEntry } from '../types/cheatsheet'
 
@@ -24,7 +24,7 @@ interface CheatEntryCardProps {
   onTry: (entry: CheatEntry) => void
 }
 
-const CheatEntryCard = ({ entry, onTry }: CheatEntryCardProps) => {
+const CheatEntryCard = memo(({ entry, onTry }: CheatEntryCardProps) => {
   const [copied, setCopied] = useState(false)
   useEffect(() => {
     if (!copied) return
@@ -41,9 +41,10 @@ const CheatEntryCard = ({ entry, onTry }: CheatEntryCardProps) => {
     [entry],
   )
 
-  // The clipboard gets the full invocation so pasting reproduces exactly
-  // what the card's preview showed (flags included).
-  const invocation = `sed${entry.quiet ? ' -n' : ''}${entry.ere ? ' -E' : ''} ${entry.command}`
+  // The clipboard gets the full, shell-quoted invocation so pasting
+  // reproduces exactly what the card's preview showed (flags included).
+  const quotedScript = `'${entry.command.split("'").join("'\\''")}'`
+  const invocation = `sed${entry.quiet ? ' -n' : ''}${entry.ere ? ' -E' : ''} ${quotedScript}`
 
   const copyCommand = () => {
     navigator.clipboard?.writeText(invocation).then(
@@ -146,6 +147,6 @@ const CheatEntryCard = ({ entry, onTry }: CheatEntryCardProps) => {
       </div>
     </article>
   )
-}
+})
 
 export default CheatEntryCard

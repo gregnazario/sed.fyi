@@ -251,7 +251,6 @@ class Engine {
       for (;;) {
         this.runList(this.nodes)
         if (this.flow === 'restartWithTrimmedPs') {
-          this.appendQueue = []
           this.flow = 'none'
           continue
         }
@@ -260,10 +259,12 @@ class Engine {
 
       switch (this.flow) {
         case 'delete':
-          // NOTE: pendingChange survives deliberately — a ranged `c` ends
+          // Queued `a` text is written before the next input line is read
+          // (POSIX), and `d` proceeds directly to that read — so flush it
+          // here. pendingChange survives deliberately: a ranged `c` ends
           // every one of its cycles via d-style flow and must stay queued
           // until its range closes or input runs out.
-          this.appendQueue = []
+          this.flushAppendQueue()
           continue cycleLoop
         case 'stopQuiet':
           this.appendQueue = []
@@ -401,8 +402,9 @@ class Engine {
           this.flow = 'delete'
         } else {
           this.ps = this.ps.slice(nl + 1)
-          this.psIncomplete = false
-          this.appendQueue = []
+          // The tail after the first newline is unchanged, so an incomplete
+          // final line stays incomplete; queued `a` text stays pending
+          // because D restarts without reading a new input line.
           this.flow = 'restartWithTrimmedPs'
         }
         break
@@ -425,7 +427,7 @@ class Engine {
         } else {
           this.ps += `\n${this.lines[this.nextLineIdx++]}`
           this.lineNo++
-          this.psIncomplete = false
+          this.psIncomplete = this.finalLineIncomplete && this.nextLineIdx === this.lines.length
           // Reading input via N resets the t-flag too (POSIX: "since the
           // last input line was read or conditional branch was taken").
           this.substitutedSinceT = false
@@ -435,15 +437,17 @@ class Engine {
         this.hs = this.ps
         break
       case 'H':
+        // Only the hold space changes; the pattern space still ends with
+        // the incomplete final line, if it did.
         this.hs += `\n${this.ps}`
-        this.psIncomplete = false
         break
       case 'g':
         this.ps = this.hs
         break
       case 'G':
+        // PS gains a newline + hold space ABOVE the old tail; the final
+        // line is still the last thing, so incompleteness is preserved.
         this.ps += `\n${this.hs}`
-        this.psIncomplete = false
         break
       case 'x': {
         const tmp = this.hs

@@ -326,8 +326,8 @@ describe('POSIX BRE edge positions and GNU extensions', () => {
     expect(ok('s/a$b/X/', 'a$b\n')).toBe('X\n')
     expect(ok('s/a^b/X/', 'a^b\n')).toBe('X\n')
     // still anchors at the pattern edges
-    expect(ok('s/^a/X/', 'abc')).toBe('Xbc\n')
-    expect(ok('s/b$/X/', 'ab')).toBe('aX\n')
+    expect(ok('s/^a/X/', 'abc')).toBe('Xbc')
+    expect(ok('s/b$/X/', 'ab')).toBe('aX')
   })
 
   test('leading * is a literal in BRE', () => {
@@ -335,7 +335,7 @@ describe('POSIX BRE edge positions and GNU extensions', () => {
   })
 
   test('$ stays an anchor right before a closing group', () => {
-    expect(ok('s/\\(b\\)$/X\\1/', 'ab')).toBe('aXb\n')
+    expect(ok('s/\\(b\\)$/X\\1/', 'ab')).toBe('aXb')
   })
 
   test('GNU 0,/re/ opens at line 1 and may match its end there', () => {
@@ -351,10 +351,16 @@ describe('POSIX BRE edge positions and GNU extensions', () => {
   })
 
   test('missing final newline is preserved in output', () => {
-    expect(ok('p', 'single')).toBe('single\nsingle')
+    // BSD-verified bytes: every emission of the incomplete line is bare,
+    // including p's second copy — no newline is added anywhere.
+    expect(ok('p', 'single')).toBe('singlesingle')
     expect(ok('q', 'ab')).toBe('ab')
     // later output concatenates straight onto the incomplete line
     expect(ok('/x/a X', 'x')).toBe('xX\n')
-    expect(ok('$!N;p', '1\n2', { quiet: true })).toBe('1\n2\n')
+    // N-joined PS ending in the incomplete line still emits bare
+    expect(ok('$!N;p', '1\n2', { quiet: true })).toBe('1\n2')
+    // H only touches the hold space; G/N keep the incomplete tail
+    expect(ok('H', 'x')).toBe('x')
+    expect(ok('G', 'x')).toBe('x\n')
   })
 })
