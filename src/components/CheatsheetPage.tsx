@@ -4,35 +4,29 @@ import { navigate } from '../hooks/useHashRoute'
 import type { CheatEntry } from '../types/cheatsheet'
 import CheatEntryCard from './CheatEntryCard'
 import type { PlaygroundState } from './SedPlayground'
-import SedPlayground, {
-  loadState,
-  PLAYGROUND_DEFAULTS,
-  PLAYGROUND_STORAGE_KEY,
-} from './SedPlayground'
+import SedPlayground, { loadState, PLAYGROUND_STORAGE_KEY } from './SedPlayground'
 import SiteFooter from './SiteFooter'
 
 const FLASH_DURATION_MS = 1200
 
 function CheatsheetPage() {
-  const [playground, setPlayground] = useState<PlaygroundState>(PLAYGROUND_DEFAULTS)
+  // Hydrate synchronously from storage: there is no "pre-hydration" window in
+  // which defaults could be flushed over the saved session (a load effect
+  // raced the persistence effect under Strict Mode and clobbered it —
+  // Bugbot finding). Client-only app, so reading storage during init is safe.
+  const [playground, setPlayground] = useState<PlaygroundState>(loadState)
   const [flashPlayground, setFlashPlayground] = useState(false)
   const [query, setQuery] = useState('')
   const playgroundRef = useRef<HTMLDivElement | null>(null)
   const commandInputRef = useRef<HTMLInputElement | null>(null)
   const flashTimer = useRef<number | undefined>(undefined)
   const headingRef = useRef<HTMLHeadingElement | null>(null)
-  const loadedFromStorage = useRef(false)
-
-  useEffect(() => {
-    setPlayground(loadState())
-    loadedFromStorage.current = true
-  }, [])
+  const savedSnapshot = useRef(JSON.stringify(playground))
+  const latestPlayground = useRef(playground)
 
   // Debounced persistence: keystrokes shouldn't serialize (potentially
   // large) stdin on every render. The debounce never eats the last edit —
   // unmount and tab-close (pagehide) flush whatever is committed.
-  const savedSnapshot = useRef('')
-  const latestPlayground = useRef(playground)
   const persist = useCallback((serialized: string) => {
     try {
       localStorage.setItem(PLAYGROUND_STORAGE_KEY, serialized)
@@ -44,7 +38,6 @@ function CheatsheetPage() {
 
   useEffect(() => {
     latestPlayground.current = playground
-    if (!loadedFromStorage.current) return
     const serialized = JSON.stringify(playground)
     if (serialized === savedSnapshot.current) return
     const timer = window.setTimeout(() => persist(serialized), 300)
@@ -53,9 +46,11 @@ function CheatsheetPage() {
 
   useEffect(() => {
     const flush = () => {
-      if (!loadedFromStorage.current) return
       const serialized = JSON.stringify(latestPlayground.current)
-      if (serialized !== savedSnapshot.current) persist(serialized)
+      // Equal to the snapshot means nothing changed since load — never
+      // "flush" defaults over what's stored.
+      if (serialized === savedSnapshot.current) return
+      persist(serialized)
     }
     window.addEventListener('pagehide', flush)
     return () => {
