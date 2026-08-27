@@ -69,10 +69,14 @@ class Engine {
   private readonly regexCache = new Map<string, RegExp>()
   private readonly maxSteps: number
 
+  private psIncomplete = false
+
   constructor(
     private readonly nodes: Node[],
     private readonly lines: string[],
     private readonly options: { extendedRegex: boolean; quiet: boolean },
+    /** Input's final line had no terminating newline (GNU preserves that). */
+    private readonly finalLineIncomplete: boolean,
   ) {
     nodes.forEach((node, i) => {
       if (node.cmd.op === 'label') this.labelIndex.set(node.cmd.name, i)
@@ -99,15 +103,30 @@ class Engine {
       return { ok: false, error: validationError }
     }
 
-    const engine = new Engine(program.nodes, splitLines(input), {
-      extendedRegex,
-      quiet: options.quiet === true || program.quietDirective,
-    })
+    const engine = new Engine(
+      program.nodes,
+      splitLines(input),
+      {
+        extendedRegex,
+        quiet: options.quiet === true || program.quietDirective,
+      },
+      input !== '' && !input.endsWith('\n'),
+    )
     try {
       return { ok: true, output: engine.execute() }
     } catch (error) {
       return toErrorResult(error)
     }
+  }
+
+  // ---- output helpers -----------------------------------------------------
+
+  /** Emit the pattern space. A final input line that lacked a newline is
+   * emitted bare — every time — and later output simply concatenates after
+   * it (BSD/GNU model: the missing newline belongs to that line, not to
+   * the end of the output stream). */
+  private emitPs() {
+    this.out.push(this.psIncomplete ? this.ps : `${this.ps}\n`)
   }
 
   // ---- regex helpers ------------------------------------------------------
@@ -169,10 +188,17 @@ class Engine {
     if (!spec.b) {
       included = this.evalAddr(spec.a)
     } else if (!working.active) {
-      if (this.evalAddr(spec.a)) {
+      // GNU `0` as a range start means "line 1" (only legal as `0,/re/`).
+      const opensHere =
+        spec.a.type === 'line' && spec.a.line === 0 ? this.lineNo === 1 : this.evalAddr(spec.a)
+      if (opensHere) {
         working.active = true
         included = true
-        if (spec.b.type === 'offset') {
+        if (spec.a.type === 'line' && spec.a.line === 0 && spec.b.type === 'regex') {
+          // GNU `0,/re/`: opens at line 1 with the end regex allowed to
+          // match on that same line (unlike ordinary regex-ended ranges).
+          if (this.evalAddr(spec.b)) working.active = false
+        } else if (spec.b.type === 'offset') {
           working.offsetLeft = spec.b.plus
         } else if (spec.b.type === 'line') {
           // A numeric END at or before the opening line makes a one-line
@@ -217,6 +243,7 @@ class Engine {
 
       if (this.nextLineIdx >= this.lines.length) break
       this.ps = this.lines[this.nextLineIdx++]
+      this.psIncomplete = this.finalLineIncomplete && this.nextLineIdx === this.lines.length
       this.lineNo++
       this.substitutedSinceT = false
 
@@ -243,7 +270,7 @@ class Engine {
           this.pendingChange = null
           break cycleLoop
         case 'quit':
-          if (!this.options.quiet) this.out.push(`${this.ps}\n`)
+          if (!this.options.quiet) this.emitPs()
           // Pending `a` text is dropped on q: queue flushes only happen at
           // end-of-cycle during normal flow, and q exits before that point
           // (POSIX specifies a-text is written "before reading the next
@@ -254,7 +281,7 @@ class Engine {
           break
       }
 
-      if (!this.options.quiet) this.out.push(`${this.ps}\n`)
+      if (!this.options.quiet) this.emitPs()
       this.flushAppendQueue()
     }
 
@@ -356,11 +383,12 @@ class Engine {
     const cmd = node.cmd
     switch (cmd.op) {
       case 'p':
-        this.out.push(`${this.ps}\n`)
+        this.emitPs()
         break
       case 'P': {
         const nl = this.ps.indexOf('\n')
-        this.out.push(nl === -1 ? `${this.ps}\n` : `${this.ps.slice(0, nl)}\n`)
+        if (nl === -1) this.emitPs()
+        else this.out.push(`${this.ps.slice(0, nl)}\n`)
         break
       }
       case 'd':
@@ -373,18 +401,20 @@ class Engine {
           this.flow = 'delete'
         } else {
           this.ps = this.ps.slice(nl + 1)
+          this.psIncomplete = false
           this.appendQueue = []
           this.flow = 'restartWithTrimmedPs'
         }
         break
       }
       case 'n':
-        if (!this.options.quiet) this.out.push(`${this.ps}\n`)
+        if (!this.options.quiet) this.emitPs()
         this.flushAppendQueue()
         if (this.nextLineIdx >= this.lines.length) {
           this.flow = 'stopQuiet'
         } else {
           this.ps = this.lines[this.nextLineIdx++]
+          this.psIncomplete = this.finalLineIncomplete && this.nextLineIdx === this.lines.length
           this.lineNo++
           this.substitutedSinceT = false
         }
@@ -395,6 +425,7 @@ class Engine {
         } else {
           this.ps += `\n${this.lines[this.nextLineIdx++]}`
           this.lineNo++
+          this.psIncomplete = false
           // Reading input via N resets the t-flag too (POSIX: "since the
           // last input line was read or conditional branch was taken").
           this.substitutedSinceT = false
@@ -405,17 +436,20 @@ class Engine {
         break
       case 'H':
         this.hs += `\n${this.ps}`
+        this.psIncomplete = false
         break
       case 'g':
         this.ps = this.hs
         break
       case 'G':
         this.ps += `\n${this.hs}`
+        this.psIncomplete = false
         break
       case 'x': {
         const tmp = this.hs
         this.hs = this.ps
         this.ps = tmp
+        this.psIncomplete = false
         break
       }
       case 'y':
@@ -507,7 +541,7 @@ class Engine {
     if (replaced > 0) {
       this.ps = result
       this.substitutedSinceT = true
-      if (cmd.printMatch) this.out.push(`${this.ps}\n`)
+      if (cmd.printMatch) this.emitPs()
     }
   }
 

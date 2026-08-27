@@ -32,6 +32,12 @@ function escapeClassChar(ch: string): string {
 
 class Translator {
   private out = ''
+  /**
+   * BRE only: whether a `^` (or a leading `*`) at the current position acts
+   * as an anchor — POSIX says `^` anchors only at the start of the pattern
+   * or after `\(`/`\|`, and a `*` there is a literal instead.
+   */
+  private anchorAllowed = true
   constructor(
     private readonly src: string,
     private readonly extended: boolean,
@@ -43,10 +49,36 @@ class Translator {
       const ch = this.src[i]
       if (ch === '[') {
         i = this.translateClass(i)
+        this.anchorAllowed = false
       } else if (ch === '\\') {
         i = this.translateEscape(i)
+      } else if (!this.extended && ch === '^') {
+        if (this.anchorAllowed) {
+          this.out += '^'
+        } else {
+          // Mid-pattern `^` is a literal in BRE (`a^b` matches "a^b").
+          this.out += '\\^'
+        }
+        this.anchorAllowed = false
+        i++
+      } else if (!this.extended && ch === '$') {
+        // `$` anchors only at the very end of the pattern (or just before
+        // `\)` / `\|`); elsewhere it is a literal (`a$b` matches "a$b").
+        const atEdge =
+          i === this.src.length - 1 ||
+          this.src.startsWith('$\\)', i) ||
+          this.src.startsWith('$\\|', i)
+        this.out += atEdge ? '$' : '\\$'
+        this.anchorAllowed = false
+        i++
+      } else if (!this.extended && ch === '*' && this.anchorAllowed) {
+        // A `*` with nothing to repeat is a literal in POSIX BRE.
+        this.out += '\\*'
+        this.anchorAllowed = false
+        i++
       } else {
         this.out += this.plainChar(ch)
+        this.anchorAllowed = false
         i++
       }
     }
@@ -59,8 +91,9 @@ class Translator {
       // Literal in BRE, operator in JS -> escape it for JS.
       return `\\${ch}`
     }
-    // Everything else ('.', '*', '^', '$' and plain text) passes through as-is;
-    // ERE operators '(' ')' '|' '+' '?' '{' '}' are already operators in JS.
+    // Everything else ('.', '*' past the start, '^'/'$' handled above, and
+    // plain text) passes through as-is; ERE operators are already operators
+    // in JS.
     return ch
   }
 
@@ -69,6 +102,7 @@ class Translator {
     if (next === undefined) {
       // Trailing backslash: sed errors on this at parse time; be forgiving here.
       this.out += '\\\\'
+      this.anchorAllowed = false
       return i + 1
     }
     switch (next) {
@@ -76,6 +110,7 @@ class Translator {
       case '>':
         // GNU word boundary
         this.out += '\\b'
+        this.anchorAllowed = false
         return i + 2
       case '(':
       case ')':
@@ -87,8 +122,11 @@ class Translator {
         // Escaped operator: significant in BRE, literal in ERE.
         if (this.extended) {
           this.out += `\\${next}`
+          this.anchorAllowed = false
         } else {
           this.out += next
+          // A `^` or `*` directly after `\(` or `\|` is still edge-positioned.
+          this.anchorAllowed = next === '(' || next === '|'
         }
         return i + 2
       case 'n':
@@ -143,7 +181,9 @@ class Translator {
     while (i < this.src.length && this.src[i] !== ']') {
       if (this.src.startsWith('[:', i)) {
         const close = this.src.indexOf(':]', i + 2)
-        if (close === -1) break
+        // `s/[[:alpha]/X/` must fail loudly like real sed, not silently
+        // emit a class that never matches.
+        if (close === -1) throw new Error('unterminated `[:...:]` bracket expression')
         const name = this.src.slice(i + 2, close)
         const expansion = POSIX_CLASSES[name]
         if (expansion === undefined) {

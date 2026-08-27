@@ -179,11 +179,17 @@ class Parser {
   private parseRange(): RangeSpec | null {
     const a = this.parseAddr()
     if (!a) return null
+    const zeroStart = a.type === 'line' && a.line === 0
     this.skipSpaces()
-    if (this.peek() !== ',') return { a, b: null }
+    if (this.peek() !== ',') {
+      // GNU: a bare `0` address is invalid; `0` only starts `0,/re/`.
+      if (zeroStart) this.fail("unexpected address `0' (only valid as `0,/re/')")
+      return { a, b: null }
+    }
     this.pos++
     this.skipSpaces()
     if (this.peek() === '+') {
+      if (zeroStart) this.fail("unexpected address `0' (only valid as `0,/re/')")
       this.pos++
       const plus = this.readNumber()
       if (plus === null) this.fail("expected line count after `,+'")
@@ -191,6 +197,10 @@ class Parser {
     }
     const b = this.parseAddr()
     if (!b) this.fail("expected address after `,'")
+    // `0,/re/` is the one legal `0` form: the end must be a regex.
+    if (zeroStart && b.type !== 'regex') {
+      this.fail("unexpected address `0' (only valid as `0,/re/')")
+    }
     return { a, b }
   }
 

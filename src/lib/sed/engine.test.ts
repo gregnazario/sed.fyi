@@ -16,73 +16,73 @@ const err = (script: string, input = '') => {
 
 describe('substitution', () => {
   test('first occurrence per line by default', () => {
-    expect(ok('s/a/X/', 'aaa\naa')).toBe('Xaa\nXa\n')
+    expect(ok('s/a/X/', 'aaa\naa\n')).toBe('Xaa\nXa\n')
   })
 
   test('g flag replaces every occurrence', () => {
-    expect(ok('s/a/X/g', 'banana')).toBe('bXnXnX\n')
+    expect(ok('s/a/X/g', 'banana\n')).toBe('bXnXnX\n')
   })
 
   test('nth flag replaces only that occurrence', () => {
     expect(ok('s/a/-/2', 'aaa\naa\n')).toBe('a-a\na-\n')
-    expect(ok('s/a/-/3g', 'aaaa')).toBe('aa--\n')
+    expect(ok('s/a/-/3g', 'aaaa\n')).toBe('aa--\n')
   })
 
   test('case-insensitive I flag', () => {
-    expect(ok('s/hello/bye/gI', 'Hello HELLO hello')).toBe('bye bye bye\n')
+    expect(ok('s/hello/bye/gI', 'Hello HELLO hello\n')).toBe('bye bye bye\n')
   })
 
   test('& and backreferences', () => {
-    expect(ok('s/[0-9][0-9]*/<&>/g', 'ab12cd345')).toBe('ab<12>cd<345>\n')
-    expect(ok('s/\\(.*\\):\\(.*\\)/\\2:\\1/', 'left:right')).toBe('right:left\n')
+    expect(ok('s/[0-9][0-9]*/<&>/g', 'ab12cd345\n')).toBe('ab<12>cd<345>\n')
+    expect(ok('s/\\(.*\\):\\(.*\\)/\\2:\\1/', 'left:right\n')).toBe('right:left\n')
   })
 
   test('GNU case conversion ops', () => {
-    expect(ok('s/.*/\\U&/', 'shout')).toBe('SHOUT\n')
-    expect(ok('s/.*/\\L&/', 'QUIET')).toBe('quiet\n')
-    expect(ok('s/o/\\u&/g', 'foo boo')).toBe('fOO bOO\n')
-    expect(ok('s/\\(a\\)\\(bc\\)/\\U\\2\\E-\\1/', 'abc')).toBe('BC-a\n')
+    expect(ok('s/.*/\\U&/', 'shout\n')).toBe('SHOUT\n')
+    expect(ok('s/.*/\\L&/', 'QUIET\n')).toBe('quiet\n')
+    expect(ok('s/o/\\u&/g', 'foo boo\n')).toBe('fOO bOO\n')
+    expect(ok('s/\\(a\\)\\(bc\\)/\\U\\2\\E-\\1/', 'abc\n')).toBe('BC-a\n')
   })
 
   test('literal & needs escaping', () => {
-    expect(ok('s/b/&y&/', 'cat black cat')).toBe('cat byblack cat\n')
-    expect(ok('s/x/a\\&b/', 'xxx')).toBe('a&bxx\n')
+    expect(ok('s/b/&y&/', 'cat black cat\n')).toBe('cat byblack cat\n')
+    expect(ok('s/x/a\\&b/', 'xxx\n')).toBe('a&bxx\n')
   })
 
   test('alternative delimiters, including escaped ones', () => {
-    expect(ok('s|/usr/local|/opt|', '/usr/local/bin')).toBe('/opt/bin\n')
-    expect(ok('s,a,b,', 'aaa')).toBe('baa\n')
-    expect(ok('s/a\\/b/c/', 'x a/b y')).toBe('x c y\n')
-    expect(ok('s%a\\%b%Z%', 'a%b')).toBe('Z\n')
+    expect(ok('s|/usr/local|/opt|', '/usr/local/bin\n')).toBe('/opt/bin\n')
+    expect(ok('s,a,b,', 'aaa\n')).toBe('baa\n')
+    expect(ok('s/a\\/b/c/', 'x a/b y\n')).toBe('x c y\n')
+    expect(ok('s%a\\%b%Z%', 'a%b\n')).toBe('Z\n')
   })
 
   test('empty replacement deletes matches', () => {
-    expect(ok('s/[aeiou]//g', 'beautiful')).toBe('btfl\n')
+    expect(ok('s/[aeiou]//g', 'beautiful\n')).toBe('btfl\n')
   })
 })
 
 describe('regex flavors', () => {
   test('BRE: escaped groups and alternation extension', () => {
-    expect(ok('s/\\(cat\\|dog\\)/PET/g', 'cat dog bird')).toBe('PET PET bird\n')
+    expect(ok('s/\\(cat\\|dog\\)/PET/g', 'cat dog bird\n')).toBe('PET PET bird\n')
   })
 
   test('ERE with -E: bare operators', () => {
-    expect(ok('s/(cat|dog)/PET/g', 'cat dog', { extendedRegex: true })).toBe('PET PET\n')
-    expect(ok('s/o+/?/g', 'foood', { extendedRegex: true })).toBe('f?d\n')
+    expect(ok('s/(cat|dog)/PET/g', 'cat dog\n', { extendedRegex: true })).toBe('PET PET\n')
+    expect(ok('s/o+/?/g', 'foood\n', { extendedRegex: true })).toBe('f?d\n')
   })
 
   test('ERE treats escaped parens as literals', () => {
-    expect(ok('s#foo\\(bar#BANG#', 'foo(bar', { extendedRegex: true })).toBe('BANG\n')
+    expect(ok('s#foo\\(bar#BANG#', 'foo(bar\n', { extendedRegex: true })).toBe('BANG\n')
   })
 
   test('POSIX character classes', () => {
-    expect(ok('s/[[:digit:]]/#/g', 'a1b22c')).toBe('a#b##c\n')
-    expect(ok('s/[^[:alpha:]]//g', 'ab12!cd')).toBe('abcd\n')
+    expect(ok('s/[[:digit:]]/#/g', 'a1b22c\n')).toBe('a#b##c\n')
+    expect(ok('s/[^[:alpha:]]//g', 'ab12!cd\n')).toBe('abcd\n')
   })
 
   test('GNU word boundaries map to JS \\b', () => {
     // Not in the differential set (BSD lacks \b) but behavior is pinned here.
-    expect(ok('s/\\bcat\\b/PET/g', 'concat cat')).toBe('concat PET\n')
+    expect(ok('s/\\bcat\\b/PET/g', 'concat cat\n')).toBe('concat PET\n')
   })
 
   test('bad regex produces an error, not a crash', () => {
@@ -132,7 +132,7 @@ describe('deletion and printing', () => {
 
 describe('transliteration', () => {
   test('y swaps characters one-for-one', () => {
-    expect(ok('y/abc/xyz/', 'cab')).toBe('zxy\n')
+    expect(ok('y/abc/xyz/', 'cab\n')).toBe('zxy\n')
   })
 
   test('length mismatch errors', () => {
@@ -150,7 +150,7 @@ describe('text insertion commands', () => {
   })
 
   test('classic two-line form after the backslash', () => {
-    expect(ok('1i\\\nHEADER', 'start')).toBe('HEADER\nstart\n')
+    expect(ok('1i\\\nHEADER', 'start\n')).toBe('HEADER\nstart\n')
   })
 
   test('ranged change emits once', () => {
@@ -164,7 +164,7 @@ describe('text insertion commands', () => {
 
 describe('hold space', () => {
   test('G double-spaces', () => {
-    expect(ok('G', 'a\nb')).toBe('a\n\nb\n\n')
+    expect(ok('G', 'a\nb\n')).toBe('a\n\nb\n\n')
   })
 
   test('reverse every line: 1!G;h;$!d', () => {
@@ -195,7 +195,7 @@ describe('multiline and flow control', () => {
   })
 
   test('q stops processing and prints current line', () => {
-    expect(ok('/two/q', 'one\ntwo\nthree')).toBe('one\ntwo\n')
+    expect(ok('/two/q', 'one\ntwo\nthree\n')).toBe('one\ntwo\n')
   })
 
   test('infinite t-loops hit the execution guard', () => {
@@ -209,7 +209,7 @@ describe('blocks', () => {
   })
 
   test('negated block runs on non-matching lines', () => {
-    expect(ok('/b/!d', 'a\nb\nc')).toBe('b\n')
+    expect(ok('/b/!d', 'a\nb\nc\n')).toBe('b\n')
   })
 })
 
@@ -246,11 +246,11 @@ describe('edge cases', () => {
   })
 
   test('input without trailing newline still terminates output', () => {
-    expect(ok('p', 'single', { quiet: false })).toBe('single\nsingle\n')
+    expect(ok('p', 'single\n', { quiet: false })).toBe('single\nsingle\n')
   })
 
   test('$ matches only when on final input line', () => {
-    expect(ok('$s/^/> /', 'a\nlast')).toBe('a\n> last\n')
+    expect(ok('$s/^/> /', 'a\nlast\n')).toBe('a\n> last\n')
   })
 
   test('anchors match only at pattern-space boundaries by default', () => {
@@ -262,7 +262,7 @@ describe('edge cases', () => {
   })
 
   test('unusual but legal whitespace between commands', () => {
-    expect(ok('s/a/X/ ; s/b/Y/', 'ab')).toBe('XY\n')
+    expect(ok('s/a/X/ ; s/b/Y/', 'ab\n')).toBe('XY\n')
   })
 })
 
@@ -280,18 +280,18 @@ describe('bugbot regressions', () => {
 
   test('gN and Ng flag orders both mean "skip past N-1, then global"', () => {
     // GNU: ignore matches before the numberth, then act as if g was given.
-    expect(ok('s/a/-/2g', 'aaaa')).toBe('a---\n')
-    expect(ok('s/a/-/g2', 'aaaa')).toBe('a---\n')
+    expect(ok('s/a/-/2g', 'aaaa\n')).toBe('a---\n')
+    expect(ok('s/a/-/g2', 'aaaa\n')).toBe('a---\n')
   })
 
   test('\\0 in the replacement is the whole match', () => {
-    expect(ok('s/[0-9][0-9]*/[\\0]/g', 'ab12cd345')).toBe('ab[12]cd[345]\n')
+    expect(ok('s/[0-9][0-9]*/[\\0]/g', 'ab12cd345\n')).toBe('ab[12]cd[345]\n')
   })
 
   test('persistent + one-shot case ops compose positionally', () => {
-    expect(ok('s/.*/\\L\\u&/', 'HELLO WORLD')).toBe('Hello world\n')
-    expect(ok('s/.*/\\U\\l&/', 'hello world')).toBe('hELLO WORLD\n')
-    expect(ok('s/[a-z]+/<\\U&>/g', 'foo bar', { extendedRegex: true })).toBe('<FOO> <BAR>\n')
+    expect(ok('s/.*/\\L\\u&/', 'HELLO WORLD\n')).toBe('Hello world\n')
+    expect(ok('s/.*/\\U\\l&/', 'hello world\n')).toBe('hELLO WORLD\n')
+    expect(ok('s/[a-z]+/<\\U&>/g', 'foo bar\n', { extendedRegex: true })).toBe('<FOO> <BAR>\n')
   })
 
   test('reading input via N resets the t-flag (POSIX)', () => {
@@ -311,12 +311,50 @@ describe('bugbot regressions', () => {
     expect(ok('/b/a\\     indented', 'a\nb\nc\n')).toBe('a\nb\n     indented\nc\n')
     expect(err('1a\\', 'x')).toContain("expected \\ after `a'")
     // Classic two-line form still works everywhere.
-    expect(ok('1i\\\nHEADER', 'start')).toBe('HEADER\nstart\n')
+    expect(ok('1i\\\nHEADER', 'start\n')).toBe('HEADER\nstart\n')
   })
 
   test('q still drops queued append text (POSIX flush timing)', () => {
     // two matches /two/; its queued X is dropped because q exits before
     // the end-of-cycle flush, and line three never gets read.
     expect(ok('/two/{a X\nq}', 'one\ntwo\nthree\n')).toBe('one\ntwo\n')
+  })
+})
+
+describe('POSIX BRE edge positions and GNU extensions', () => {
+  test('mid-pattern ^ and $ are literals in BRE', () => {
+    expect(ok('s/a$b/X/', 'a$b\n')).toBe('X\n')
+    expect(ok('s/a^b/X/', 'a^b\n')).toBe('X\n')
+    // still anchors at the pattern edges
+    expect(ok('s/^a/X/', 'abc')).toBe('Xbc\n')
+    expect(ok('s/b$/X/', 'ab')).toBe('aX\n')
+  })
+
+  test('leading * is a literal in BRE', () => {
+    expect(ok('s/* //', '* hi\n')).toBe('hi\n')
+  })
+
+  test('$ stays an anchor right before a closing group', () => {
+    expect(ok('s/\\(b\\)$/X\\1/', 'ab')).toBe('aXb\n')
+  })
+
+  test('GNU 0,/re/ opens at line 1 and may match its end there', () => {
+    expect(ok('0,/a/s/a/X/', 'a\nb\na\n')).toBe('X\nb\na\n')
+    // end not on line 1: range stays open across lines like any regex range
+    expect(ok('0,/c/s/a/X/', 'a\nb\nc\n')).toBe('X\nb\nc\n')
+    expect(err('0d', 'x')).toContain('unexpected address `0')
+    expect(err('0,2d', 'x')).toContain('unexpected address `0')
+  })
+
+  test('unterminated [:name: class fails loudly', () => {
+    expect(err('s/[[:alpha]/X/', 'abc')).toContain('unterminated')
+  })
+
+  test('missing final newline is preserved in output', () => {
+    expect(ok('p', 'single')).toBe('single\nsingle')
+    expect(ok('q', 'ab')).toBe('ab')
+    // later output concatenates straight onto the incomplete line
+    expect(ok('/x/a X', 'x')).toBe('xX\n')
+    expect(ok('$!N;p', '1\n2', { quiet: true })).toBe('1\n2\n')
   })
 })

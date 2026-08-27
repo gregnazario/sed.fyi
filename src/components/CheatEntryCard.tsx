@@ -41,8 +41,12 @@ const CheatEntryCard = ({ entry, onTry }: CheatEntryCardProps) => {
     [entry],
   )
 
+  // The clipboard gets the full invocation so pasting reproduces exactly
+  // what the card's preview showed (flags included).
+  const invocation = `sed${entry.quiet ? ' -n' : ''}${entry.ere ? ' -E' : ''} ${entry.command}`
+
   const copyCommand = () => {
-    navigator.clipboard?.writeText(entry.command).then(
+    navigator.clipboard?.writeText(invocation).then(
       () => setCopied(true),
       () => undefined,
     )
