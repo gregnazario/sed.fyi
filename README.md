@@ -14,27 +14,27 @@ A static website that explains how to run a dev tool across different operating 
 
 1. Install dependencies:
    ```bash
-   npm install
+   bun install
    ```
 
 2. Start the development server:
    ```bash
-   npm run dev
+   bun run dev
    ```
 
 3. Build for production:
    ```bash
-   npm run build
+   bun run build
    ```
 
 4. Preview the production build:
    ```bash
-   npm run preview
+   bun run preview
    ```
 
 5. Type checking:
    ```bash
-   npm run typecheck
+   bun run typecheck
    ```
 
 ## Deployment

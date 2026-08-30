@@ -16,7 +16,7 @@ permissions:
 
 jobs:
   check:
-    name: Typecheck, lint and build
+    name: Typecheck, lint, build and test
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v7
@@ -36,3 +36,6 @@ jobs:
 
       - name: Build
         run: bun run build
+
+      - name: Test
+        run: bun test
