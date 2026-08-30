@@ -12,6 +12,13 @@ A static website that explains how to run a dev tool across different operating 
 
 ## Development
 
+This project uses [Bun](https://bun.sh/) as its package manager and test
+runner. If you don't have it yet:
+
+```bash
+curl -fsSL https://bun.sh/install | bash
+```
+
 1. Install dependencies:
    ```bash
    bun install
