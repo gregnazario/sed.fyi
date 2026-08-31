@@ -19,6 +19,12 @@ runner. If you don't have it yet:
 curl -fsSL https://bun.sh/install | bash
 ```
 
+On Windows (PowerShell):
+
+```powershell
+powershell -c "irm bun.sh/install.ps1 | iex"
+```
+
 1. Install dependencies:
    ```bash
    bun install
