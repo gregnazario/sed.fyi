@@ -24,6 +24,18 @@ import type { Project } from '../types/project'
  */
 export const projects: Project[] = [
   {
+    id: 'qr',
+    title: 'qr',
+    description:
+      'A fully customizable QR code generator that runs entirely in your browser. Nine content types (WiFi, vCard, calendar, and more), gradients, module and eye shapes, logo embedding — exported as true vector SVG, PDF, and EPS, plus PNG and terminal formats. Every style is decode-verified live with a real QR reader.',
+    url: 'https://qr.sed.fyi',
+    category: 'tool',
+    techStack: ['Rust', 'WebAssembly', 'Zero-install'],
+    screenshot: '/screenshots/qr.png',
+    githubUrl: 'https://github.com/gregnazario/qrcode',
+    status: 'active',
+  },
+  {
     id: 'move-playground',
     title: 'Move Playground',
     description:
